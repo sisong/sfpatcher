@@ -1,4 +1,5 @@
-﻿
+﻿# sfpatcher：针对应用商店的apk增量算法
+
 联系作者： <housisong@hotmail.com>
 
 ## 定义
