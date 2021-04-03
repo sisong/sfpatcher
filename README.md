@@ -12,8 +12,8 @@
 随着智能手机的普及和应用数量的爆发式增长，手机上大量app的下载和更新将产生巨大的数据流量。手机上的应用商店一般都会部署增量更新系统来节省大量的服务带宽成本和提升用户体验（节省用户流量和减少下载时间），而不用每次都下载完整版本。   
 
 应用商店使用的增量更新算法一般选择使用的是基于字节的 diff 和 patch 算法，包括：[BsDiff ](http://www.daemonology.net/bsdiff)、[xdelta3](https://github.com/jmacd/xdelta)、[HDiffPatch](https://github.com/sisong/HDiffPatch)等。   
- - **BsDiff** 是当前选择使用较多的算法，创建的补丁小，代码量小，容易移植。但diff和patch场景下执行速度都很慢、内存占用巨大，应用于商店等场景时需要进行一些修改定制。
- - **xdelta3** 在diff和patch场景下执行速度都很快，输出标准化的补丁格式(gdiff 格式)，apk补丁大小和BsDiff接近或略大，内存占用中等；**三星**的应用商店就应用了 gdiff 补丁。该算法在diff处理较大文件的时候（比如512MB以上，而现在很多游戏apk都接近2GB了），常会输出不正常的巨大补丁，除非使用和文件大小相当的参考内存来diff和patch，这是原理上决定的，而这时内存占用的优势就没有了。
+ - **BsDiff** 是当前选择使用较多的算法，创建的补丁小，代码量小，容易移植。但diff和patch场景下执行速度都很慢、内存占用巨大，应用于应用商店等场景时需要进行一些修改定制。
+ - **xdelta3** 在diff和patch场景下执行速度都很快，输出标准化的补丁格式(gdiff 格式)，apk补丁大小和BsDiff接近或略大，内存占用中等；**三星**的应用商店就应用了 gdiff 补丁。该算法在diff处理较大文件的时候（比如几百MB以上，而现在很多游戏apk都接近2GB了），常会输出不正常的巨大补丁，除非使用和文件大小相当的参考内存来diff和patch，这是原理上决定的，而这时内存占用的优势就没有了。
  - **HDiffPatch** 是笔者开源的算法，创建的补丁一般比BsDiff略小一些，diff(-s模式)和patch场景下执行速度都很快，内存占用都很小。 diff时也支持-m模式，用更大的内存和时间代价(这时也比BsDiff快得多)来得到更小一些的补丁包。 HDiffPatch 现在已经被**腾讯**、**OPPO**、**VIVO**等的应用商店所使用，也被**华为**开源的IoT操作系统用于ota升级；从为8位CPU、4KB内存、2百KB储存的IoT设备创建ota增量补丁(4KB内存里一边解压一边patch!)，到为上百GB的游戏创建更新补丁，HDiffPatch 算法得到了越来越广泛的应用。
 ## 针对apk的diff&patch算法
 现在提到的增量更新实现方案都只是把apk单纯的看作文件数据直接用算法进行diff&patch，而没有考虑apk包本身是一个zip压缩包的事实。这种简单使用方式可以概括为公式：
@@ -29,12 +29,12 @@
   newApk  :=recompress(patch(decompress(oldApk),diffFile))
 ```
 公式里面的diff和patch函数很好办，选择上面提到的一种基于字节的diff&patch算法就行；decompress函数的实现也很简单，就是zip包的解压缩算法；recompress函数的实现比较麻烦一些，需要保证精确的原样还原newApk（避免破坏签名和运行等）。   
-而 [archive-patcher](https://github.com/google/archive-patcher) 和  [ApkDiffPatch](https://github.com/sisong/ApkDiffPatch) 正是这种思路的实现方案（也包括本文章要介绍 sfpatcher 方案）。   
+而 [archive-patcher](https://github.com/google/archive-patcher) 和  [ApkDiffPatch](https://github.com/sisong/ApkDiffPatch) 正是这种思路的实现方案（也包括本文章要介绍的 sfpatcher 方案）。   
  - **archive-patcher** 谷歌开源的一个针对apk文件的diff&patch实现，在谷歌play商店中使用。内部使用了BsDiff算法作为基础，针对解压大小小于512MB的并且使用了zlib的deflate压缩算法创建的apk文件，执行优化的补丁算法。 该方案在patch时比较慢，特别是部分略大的apk文件使用了较高的压缩级别的，这时重新压缩出新版本apk时会慢的让用户无法接受，所以该优化方案一般用在可以后台更新的场景下。
  - **ApkDiffPatch** 是笔者开源的算法，为给自己团队开发的apk更新来开发的方案，创建的补丁平均比archive-patcher小很多，patch速度中等；方案一般用在可以自己对apk进行重新签名的场景，而不能用于应用商店。内部使用了HDiffPatch算法作为基础，不支持zip64格式的apk包。为了patch时精确还原，和优化压缩时的速度，需要对发布的apk文件执行ApkNormalized预处理流程（使用了较快的压缩参数，处理过的apk需要重新签名）。 patch时可以支持并行压缩来加快apk还原速度，但这时内存资源占用比较严重，和多个线程正在分别压缩的多个文件源大小和其压缩后大小的总和相当。
 # sfpatcher 是什么？
 针对压缩档案文件的高性能增量更新方案。类似于archive-patcher方案可用于应用商店的diff&patch算法，该领域的重要技术进展。   
-内部使用了HDiffPatch算法作为基础，支持为zlib库压缩的数据创建优化的补丁，支持创建多种档案格式 apk (zip、zip64、jar)、gz、tar等（和其嵌套）文件之间的优化补丁。   
+内部使用了HDiffPatch算法作为基础，支持为deflate格式压缩的数据创建优化的补丁(用zlib压缩的支持最好)，支持创建多种档案格式 apk (zip、zip64、jar)、gz、tar等（和其嵌套）文件之间的优化补丁。   
 补丁输出支持多种压缩算法zlib、bz2、lzma、lzma2、zstd、lzham、brotli等；源代码跨平台；……    
 # sfpatcher 之道
 - 针对应用商店的场景专门设计，patch时精确快速还原任意apk文件，能够用于用户交互场景。
@@ -100,12 +100,12 @@
 |32|yuanshichuanqi1.3.608.apk <-- yuanshichuanqi1.3.607.apk|192578139|192577253|
 
 # 测试条件
-在一台笔记本PC上了对比测试，CPU Ryzen 4800H，Windows10   
-BsDiff的还是保持着使用bzip2压缩补丁。   
+在一台笔记本PC上对比测试，CPU Ryzen 4800H，Windows10   
+BsDiff还是保持着使用bzip2算法压缩补丁。   
 xdelta3使用`-e -n -f -s`来创建补丁, 而用`-d -f -s`参数来执行的patch。   
 HDiffPatch支持2种diff模式，-s和-m模式分别测试，输出补丁用的lzma2压缩。   
-archive-patcher一般使用brotli算法压缩补丁，为了diff速度并更好的和其他方案对比补丁大小，改成了diff输出不压缩的补丁，然后在额外使用lzma2压缩补丁； 需要注意：对比的diff数据不包含额外压缩时的资源消耗，patch时也不含解压的时间和内存消耗。   
-ApkDiffPatch使用了lzma来压缩输出补丁。   
+archive-patcher一般使用brotli算法压缩补丁，这里为了diff速度并更好的和其他方案对比补丁大小，改成了diff时输出不压缩的补丁，然后再额外使用lzma2压缩补丁。 需要注意：收集到的diff数据不包含额外压缩时的资源消耗，收集到的patch数据也不包含解压的时间和内存消耗。   
+ApkDiffPatch使用了lzma来压缩输出的补丁。   
 patch时标注tmpFile表示使用了临时文件来储存中间数据；而标注MT表示开启了多线程并行。   
 sfpatcher支持4个级别的diff，-0,-1,-2和-3分别测试； sfpatcher支持不需要旧版本apk而直接重新压缩新版本apk的模式，标记为 -pre；sfpatcher支持多种压缩输出，这里测试了zstd和lzma2这2种。   
 
@@ -134,6 +134,8 @@ sfpatcher支持4个级别的diff，-0,-1,-2和-3分别测试； sfpatcher支持�
 |sfpatcher -2 zstd|28.5%|1560|86.8|mem MT|142|0.8|1.5|
 |sfpatcher -3 lzma2|23.7%|1476|86.5|mem|156|7.5|10.8|
 |sfpatcher -3 lzma2|23.7%|1476|86.5|mem MT|162|2.1|4.0|
+|sfpatcher -3 lzma2|23.5%|1487|85.7|tmpFile|48|8.4||
+|sfpatcher -3 lzma2|23.5%|1487|85.7|tmpFile MT|54|2.8||
 |sfpatcher -3 zstd|25.1%|1663|92.9|mem|156|6.7|9.7|
 |sfpatcher -3 zstd|25.1%|1663|92.9|mem MT|162|1.5|3.0|
 |sfpatcher -2 -pre lzma2|82.0%|2593|51.9|mem|114|7.0|10.2|
@@ -145,8 +147,9 @@ sfpatcher支持4个级别的diff，-0,-1,-2和-3分别测试； sfpatcher支持�
 |sfpatcher -3 -pre zstd|82.6%|1953|107.0|mem|112|7.7|11.4|
 |sfpatcher -3 -pre zstd|82.6%|1953|107.0|mem MT|122|1.6|3.5|
 
+
 # sfpatcher的大规模测试
-收集了Top500中多个app应用和其多个历史版本，形成了4280个测试用例，进行了diff并使用了lzma2压缩； 后来重新收集了更多数据形成了6495个测试用例，并使用了zstd压缩输出补丁。   
+收集了Top500中多个app应用和其多个历史版本，形成了4280个测试用例，进行了diff和patch测试并使用了lzma2压缩； 后来重新收集了更多数据形成了6495个测试用例，并使用了zstd压缩输出补丁。   
 
 | 方案|平均压缩率|
 |:----|----:|
