@@ -28,26 +28,26 @@
   diffFile:=diff(decompress(oldApk),decompress(newApk))
   newApk  :=recompress(patch(decompress(oldApk),diffFile))
 ```
-公式里面的diff和patch函数很好办，选择上面提到的一种基于字节的diff&patch算法就行；decompress函数的实现也很简单，就是zip包的解压缩算法；recompress函数的实现比较麻烦一些，需要保证精确的原样还原newApk（避免破坏签名和运行等）。   
+公式里面的diff和patch函数很好办，选择上面提到的一种基于字节的diff&patch算法就行；decompress函数的实现也较简单，就是zip包的解压缩算法；recompress函数的实现比较麻烦一些，需要保证精确的原样还原newApk（避免破坏签名和运行等）。   
 而 [archive-patcher](https://github.com/google/archive-patcher) 和  [ApkDiffPatch](https://github.com/sisong/ApkDiffPatch) 正是这种思路的实现方案（也包括本文章要介绍的 sfpatcher 方案）。   
- - **archive-patcher** 谷歌开源的一个针对apk文件的diff&patch实现，在谷歌play商店中使用。内部使用了BsDiff算法作为基础，针对解压大小小于512MB的并且使用了zlib的deflate压缩算法创建的apk文件，执行优化的补丁算法。 该方案在patch时比较慢，特别是部分略大的apk文件使用了较高的压缩级别的，这时重新压缩出新版本apk时会慢的让用户无法接受，所以该优化方案一般用在可以后台更新的场景下。
- - **ApkDiffPatch** 是笔者开源的算法，为给自己团队开发的apk更新来开发的方案，创建的补丁平均比archive-patcher小很多，patch速度中等；方案一般用在可以自己对apk进行重新签名的场景，而不能用于应用商店。内部使用了HDiffPatch算法作为基础，不支持zip64格式的apk包。为了patch时精确还原，和优化压缩时的速度，需要对发布的apk文件执行ApkNormalized预处理流程（使用了较快的压缩参数，处理过的apk需要重新签名）。 patch时可以支持并行压缩来加快apk还原速度，但这时内存资源占用比较严重，和多个线程正在分别压缩的多个文件源大小和其压缩后大小的总和相当。
+ - **archive-patcher** 谷歌开源的一个针对apk文件的diff&patch实现，在谷歌play商店中使用。内部使用了BsDiff算法作为基础，针对解压大小小于512MB的并且使用了zlib的deflate压缩算法创建的apk文件，执行优化的补丁算法。 该方案在patch时比较慢，特别是部分略大的apk文件使用了较高的压缩级别的时，这时重新压缩出新版本apk会慢的让用户无法接受，所以该优化方案一般用在可以后台更新的场景下。
+ - **ApkDiffPatch** 是笔者开源的算法，为给自己团队开发的apk更新来开发的方案，创建的补丁平均比 archive-patcher 小很多，patch速度中等；方案一般用在可以自己对apk进行重新签名的场景，而不能用于应用商店。内部使用了 HDiffPatch 算法作为基础，不支持zip64格式的apk包。为了patch时精确还原，和优化压缩时的速度，需要对发布的apk文件执行 ApkNormalized 预处理流程（使用了较快的压缩参数，处理过的apk需要重新签名）。 patch时可以支持并行压缩来加快apk还原速度，但这时内存资源占用比较严重，和多个线程正在分别压缩的多个文件源大小和其压缩后大小的总和相当。
 # sfpatcher 是什么？
-针对压缩档案文件的高性能增量更新方案。类似于archive-patcher方案可用于应用商店的diff&patch算法，该领域的重要技术进展。   
-内部使用了HDiffPatch算法作为基础，支持为deflate格式压缩的数据创建优化的补丁(用zlib压缩的支持最好)，支持创建多种档案格式 apk (zip、zip64、jar)、gz、tar等（和其嵌套）文件之间的优化补丁。   
+针对压缩档案文件的高性能增量更新方案。类似于 archive-patcher 方案可用于应用商店的diff&patch算法，该领域的重要技术进展。   
+内部使用了 HDiffPatch 算法作为基础，支持为deflate格式压缩的数据创建优化的补丁(用zlib压缩的支持最好)，支持在多种档案格式 apk (zip、zip64、jar)、gz、tar等（和其嵌套）文件之间创建优化的补丁。   
 补丁输出支持多种压缩算法zlib、bz2、lzma、lzma2、zstd、lzham、brotli等；源代码跨平台；……    
 # sfpatcher 之道
 - 针对应用商店的场景专门设计，patch时精确快速还原任意apk文件，能够用于用户交互场景。
-- 多级可选的补丁包大小，极致的patch速度：提供比谷歌**archive-patcher**方案下载补丁略小4%的情况下，patch速度是其7倍(这时比BsDiff方案小50%并且速度更快)！补丁比其大7%的情况下，速度是其13倍！补丁比其小21%的情况下，平均速度是其2.8倍！  （注1）
+- 多级可选的补丁包大小，极致的patch速度：提供比谷歌**archive-patcher**默认方案下载补丁小9%的情况下，patch速度是其9倍(这时比BsDiff方案小约50%并且速度快得多)！补丁比其大3%的情况下，速度是其18倍！补丁比其小20%的情况下，平均速度是其2.9倍！  （注1）
 - patch时的内存等资源占用可控；支持多种方案限制patch时的内存占用到合适的约定水平。支持patch时O(1)内存占用(并且不使用临时文件)的优化补丁包！
 - 优化的用户体验：下载数据的同时就可以开始patch，不用将补丁文件保存到内存或硬盘上，结合快速的patch，很多时候下载完成时，就可以得到了完整的新版本apk文件。
-- 利用精确还原算法，对于初次下载的apk文件也能进行解压后的重压缩；从而节省用户初次下载apk时的带宽。最多平均比直接下载apk文件减少20%的数据，部分文件能减少35%的数据！
+- 利用精确还原算法，对于初次下载的apk文件也能进行解压后的重压缩；从而节省用户初次下载apk时的带宽。最多平均比直接下载apk文件减少23%的数据，部分文件能减少35%的数据！
 
 注1： 所有测试数据来源于收集的一些常用apk应用和游戏，共32个测试用例（见性能测试对比数据）
 
 ## 方案主要特性对比
-- **sfpatcher 和 archive-patcher**：sfpatcher的patch端比archive-patcher快很多倍，能够满足各种使用场景的要求，而archive-patcher一般用于后台更新场景；sfpatcher 生成的补丁大小在很多情况下也可以比archive-patcher更小。
-- **sfpatcher 和 ApkDiffPatch**：sfpatcher的patch端比ApkDiffPatch更快一些，内存占用更加可控；sfpatcher 生成的补丁平均比ApkDiffPatch大一些；sfpatcher 可用于广泛的场景，而ApkDiffPatch用于能够对apk文件进行重新签名的场景。
+- **sfpatcher 和 archive-patcher**：sfpatcher 的patch端比 archive-patcher 快很多倍，资源占用小，能够满足各种使用场景的要求，而 archive-patcher 一般用于后台更新场景；sfpatcher 生成的补丁大小在很多情况下也可以比 archive-patcher 更小。
+- **sfpatcher 和 ApkDiffPatch**：sfpatcher 的patch端比 ApkDiffPatch 更快一些，内存占用可控；sfpatcher 生成的补丁平均比 ApkDiffPatch 大一些；sfpatcher 可用于广泛的场景，而ApkDiffPatch用于能够对apk文件进行重新签名的场景。
 
 # 参与测试的diff&patch方案
 - [BsDiff ](http://www.daemonology.net/bsdiff)
@@ -106,68 +106,98 @@ xdelta3使用`-e -n -f -s`来创建补丁, 而用`-d -f -s`参数来执行的pat
 HDiffPatch支持2种diff模式，-s和-m模式分别测试，输出补丁用的lzma2压缩。   
 archive-patcher一般使用brotli算法压缩补丁，这里为了diff速度并更好的和其他方案对比补丁大小，改成了diff时输出不压缩的补丁，然后再额外使用lzma2压缩补丁。 需要注意：这时收集到的diff数据不包含额外压缩时的时间和内存消耗，收集到的patch数据也不包含解压的时间和内存消耗。   
 ApkDiffPatch使用了lzma来压缩输出的补丁。   
-patch时标注tmpFile表示使用了临时文件来储存中间数据；而标注MT表示开启了多线程并行。   
+patch时标注tmpFile表示使用了临时文件来储存中间数据；mem表示在内存中执行不使用临时文件；limit mem表示使用限制内存占用的模式执行；而标注MT表示开启了多线程(8个)并行。   
 sfpatcher支持4个级别的diff，-0,-1,-2和-3分别测试； sfpatcher支持不需要旧版本apk而直接重新压缩新版本apk的模式，标记为 -pre；sfpatcher支持多种压缩输出，这里测试了zstd和lzma2这2种。   
 
 另外在一部安卓手机(CPU:Kirin980)上对sfpatcher进行了一些patch时间测试，补充到了最后一列。   
 # 测试汇总   
 
-| 方案|平均压缩率|平均内存(MB)|平均时间(秒)|patch|平均内存(MB)|平均时间(秒)|Kirin980时间(秒)|
-|:----|----:|----:|----:|----|----:|----:|----:|
-|bsdiff|59.8%|1035|188.5|mem|243|3.4|
-|xdelta3|59.9%|228|36.2|mem|99|0.8|
-|hdiffz -s-16|59.0%|252|9.8|mem|19|0.8|
-|hdiffz -m-1|58.7%|781|77.8|mem|19|0.8|
-|archive-patcher|28.4%|1745|199.6|tmpFile|62|7.7|
-|ApkDiffPatch|20.7%|980|84.1|mem|137|6.7|
-|ApkDiffPatch|20.7%|980|84.1|mem MT|218|3.1|
+| 方案|平均压缩率|平均内存(MB)|平均时间(秒)|patch|最大内存(MB)|平均内存(MB)|平均时间(秒)|Kirin980时间(秒)|
+|:----|----:|----:|----:|----|----:|----:|----:|----:|
+|bsdiff|59.8%|1035|188|mem|751|243|3.44|
+|xdelta3|59.9%|228|36|mem|100|99|0.79|
+|hdiffz -s-16|59.0%|252|10|mem|20|19|0.77|
+|hdiffz -m-1|58.7%|781|78|mem|21|19|0.77|
+|archive-patcher|28.4%|1745|200|tmpFile|100|62|7.73|
+|ApkDiffPatch|20.7%|980|84|mem|386|137|6.70|
+|ApkDiffPatch|20.7%|980|84|mem MT|461|218|3.10|
 ||
-|sfpatcher -0 lzma2|58.6%|1071|78.4|mem|48|0.8|1.3|
-|sfpatcher -0 zstd|58.7%|1238|82.4|mem|42|0.3|0.5|
-|sfpatcher -1 lzma2|30.7%|1214|76.0|mem|114|2.0|3.0|
-|sfpatcher -1 lzma2|30.7%|1214|76.0|mem MT|117|1.3|2.2|
-|sfpatcher -1 zstd|31.9%|1435|81.7|mem|113|1.0|1.6|
-|sfpatcher -1 zstd|31.9%|1435|81.7|mem MT|112|0.4|0.9|
-|sfpatcher -1 limit zstd|32.4%|1138|84.9|limit mem|15|0.8||
-|sfpatcher -1 limit zstd|32.4%|1138|84.9|limit mem MT|18|0.4||
-|sfpatcher -1 limit zstd|32.4%|1138|84.9|mem MT|72|0.3||
-|sfpatcher -2 lzma2|27.2%|1357|80.6|mem|139|4.0|5.5|
-|sfpatcher -2 lzma2|27.2%|1357|80.6|mem MT|144|1.5|2.7|
-|sfpatcher -2 zstd|28.5%|1560|86.8|mem|139|3.1|4.3|
-|sfpatcher -2 zstd|28.5%|1560|86.8|mem MT|142|0.8|1.5|
-|sfpatcher -3 lzma2|23.7%|1476|86.5|mem|156|7.5|10.8|
-|sfpatcher -3 lzma2|23.7%|1476|86.5|mem MT|162|2.1|4.0|
-|sfpatcher -3 lzma2|23.5%|1487|85.7|tmpFile|48|8.4||
-|sfpatcher -3 lzma2|23.5%|1487|85.7|tmpFile MT|54|2.8||
-|sfpatcher -3 zstd|25.1%|1663|92.9|mem|156|6.7|9.7|
-|sfpatcher -3 zstd|25.1%|1663|92.9|mem MT|162|1.5|3.0|
-|sfpatcher -2 -pre lzma2|82.0%|2593|51.9|mem|114|7.0|10.2|
-|sfpatcher -2 -pre lzma2|82.0%|2593|51.9|mem MT|119|3.6|5.8|
-|sfpatcher -2 -pre zstd|87.1%|1754|82.5|mem|94|3.7|5.2|
-|sfpatcher -2 -pre zstd|87.1%|1754|82.5|mem MT|99|0.8|1.7|
-|sfpatcher -3 -pre lzma2|77.0%|2830|58.1|mem|119|10.8|15.9|
-|sfpatcher -3 -pre lzma2|77.0%|2830|58.1|mem MT|125|4.0|7.0|
-|sfpatcher -3 -pre zstd|82.6%|1953|107.0|mem|112|7.7|11.4|
-|sfpatcher -3 -pre zstd|82.6%|1953|107.0|mem MT|122|1.6|3.5|
-
+|sfpatcher -0 lzma2|58.7%|886|74|mem|21|20|0.47|0.86|
+|sfpatcher -0 lzma2|58.7%|886|74|mem MT|22|21|0.38|0.72|
+|sfpatcher -0 zstd|58.8%|1062|77|mem|22|20|0.19|0.40|
+|sfpatcher -0 zstd|58.8%|1062|77|mem MT|23|21|0.14|0.34|
+|sfpatcher -1 lzma2|30.8%|1074|79|limit mem|26|21|1.38|2.18|
+|sfpatcher -1 lzma2|30.8%|1074|79|limit mem MT|28|24|0.82|1.33|
+|sfpatcher -1 lzma2|30.8%|1074|79|mem MT|138|79|0.78|1.38|
+|sfpatcher -1 zstd|31.8%|1203|84|limit mem|26|21|0.84|1.33|
+|sfpatcher -1 zstd|31.8%|1203|84|limit mem MT|29|25|0.47|0.76|
+|sfpatcher -1 zstd|31.8%|1203|84|mem MT|139|80|0.29|0.60|
+|sfpatcher -2 8m lzma2|27.5%|1226|82|limit mem|27|20|3.49|4.84|
+|sfpatcher -2 8m lzma2|27.5%|1226|82|limit mem MT|33|24|1.28|2.09|
+|sfpatcher -2 8m lzma2|27.5%|1226|82|mem MT|240|101|1.15|2.03|
+|sfpatcher -2 8m zstd|28.8%|2240|86|limit mem|28|20|3.01|4.08|
+|sfpatcher -2 8m zstd|28.8%|2240|86|limit mem MT|34|25|0.94|1.56|
+|sfpatcher -2 8m zstd|28.8%|2240|86|mem MT|241|102|0.73|1.35|
+|sfpatcher -2 32m lzma2|27.4%|1246|83|limit mem|56|34|3.50|4.85|
+|sfpatcher -2 32m lzma2|27.4%|1246|83|limit mem MT|62|40|1.31|2.17|
+|sfpatcher -2 32m lzma2|27.4%|1246|83|mem MT|248|108|1.15|1.96|
+|sfpatcher -2 32m zstd|28.7%|1796|89|limit mem|56|35|3.02|4.10|
+|sfpatcher -2 32m zstd|28.7%|1796|89|limit mem MT|62|41|0.95|1.63|
+|sfpatcher -2 32m zstd|28.7%|1796|89|mem MT|249|108|0.74|1.33|
+|sfpatcher -2 lzma2|27.4%|1284|85|mem|151|53|3.53|4.86|
+|sfpatcher -2 lzma2|27.4%|1284|85|mem MT|264|119|1.16|2.03|
+|sfpatcher -2 lzma2|27.4%|1284|85|tmpFile|43|33|4.04|5.30|
+|sfpatcher -2 lzma2|27.4%|1284|85|tmpFile MT|49|38|1.67|2.45|
+|sfpatcher -2 zstd|28.6%|1386|91|mem|152|54|3.03|4.09|
+|sfpatcher -2 zstd|28.6%|1386|91|mem MT|265|120|0.73|1.35|
+|sfpatcher -2 zstd|28.6%|1386|91|tmpFile|44|33|3.54|4.53|
+|sfpatcher -2 zstd|28.6%|1386|91|tmpFile MT|49|38|1.38|1.96|
+|sfpatcher -3 8m lzma2|23.8%|1374|89|limit mem|27|22|7.09|10.28|
+|sfpatcher -3 8m lzma2|23.8%|1374|89|limit mem MT|33|27|2.06|3.67|
+|sfpatcher -3 8m lzma2|23.8%|1374|89|mem MT|375|124|1.90|3.46|
+|sfpatcher -3 8m zstd|25.3%|2386|93|limit mem|28|23|6.63|9.55|
+|sfpatcher -3 8m zstd|25.3%|2386|93|limit mem MT|34|28|1.74|3.15|
+|sfpatcher -3 8m zstd|25.3%|2386|93|mem MT|376|124|1.55|3.03|
+|sfpatcher -3 32m lzma2|23.6%|1390|88|limit mem|56|42|7.11|10.30|
+|sfpatcher -3 32m lzma2|23.6%|1390|88|limit mem MT|64|48|2.10|3.69|
+|sfpatcher -3 32m lzma2|23.6%|1390|88|mem MT|383|131|1.91|3.51|
+|sfpatcher -3 32m zstd|25.0%|1900|94|limit mem|57|43|6.64|9.61|
+|sfpatcher -3 32m zstd|25.0%|1900|94|limit mem MT|64|49|1.78|3.21|
+|sfpatcher -3 32m zstd|25.0%|1900|94|mem MT|384|131|1.56|2.90|
+|sfpatcher -3 lzma2|23.5%|1418|90|mem|151|63|7.16|10.31|
+|sfpatcher -3 lzma2|23.5%|1418|90|mem MT|399|142|1.91|3.50|
+|sfpatcher -3 lzma2|23.5%|1418|90|tmpFile|43|33|7.67|10.76|
+|sfpatcher -3 lzma2|23.5%|1418|90|tmpFile MT|49|38|2.43|3.97|
+|sfpatcher -3 zstd|25.0%|1513|99|mem|152|63|6.70|9.57|
+|sfpatcher -3 zstd|25.0%|1513|99|mem MT|400|143|1.55|2.89|
+|sfpatcher -3 zstd|25.0%|1513|99|tmpFile|44|33|7.19|10.03|
+|sfpatcher -3 zstd|25.0%|1513|99|tmpFile MT|50|39|2.14|3.49|
+|sfpatcher -2 -pre lzma2|82.1%|2016|50|mem|73|64|4.98|7.00|
+|sfpatcher -2 -pre lzma2|82.1%|2016|50|mem MT|79|68|1.70|2.85|
+|sfpatcher -2 -pre zstd|87.3%|2100|63|mem|73|65|3.74|5.02|
+|sfpatcher -2 -pre zstd|87.3%|2100|63|mem MT|81|69|0.80|1.52|
+|sfpatcher -3 -pre lzma2|77.2%|2220|57|mem|73|69|9.27|13.50|
+|sfpatcher -3 -pre lzma2|77.2%|2220|57|mem MT|79|73|2.64|4.68|
+|sfpatcher -3 -pre zstd|82.8%|2359|83|mem|73|69|7.81|11.16|
+|sfpatcher -3 -pre zstd|82.8%|2359|83|mem MT|81|75|1.71|3.33|
 
 # sfpatcher的大规模测试
-收集了Top500中多个app应用和其多个历史版本，形成了4280个测试用例，进行了diff和patch测试并使用了lzma2压缩； 后来重新收集了更多数据形成了6495个测试用例，并使用了zstd压缩输出补丁。   
+收集了Top500中多个app应用和其多个历史版本，形成了6495个测试用例，进行了diff和patch测试并分别使用了lzma2压缩和zstd压缩输出补丁。   
+(两次测试参数略有差异)   
 
 | 方案|平均压缩率|
 |:----|----:|
-|sfpatcher -0 lzma2|49.7%|
-|sfpatcher -1 lzma2|30.8%|
-|sfpatcher -2 lzma2|28.3%|
-|sfpatcher -3 lzma2|26.0%|
+|sfpatcher -0 lzma2|50.8%|
+|sfpatcher -1 lzma2|31.5%|
+|sfpatcher -2 lzma2|29.3%|
+|sfpatcher -3 lzma2|26.6%|
 |sfpatcher -2 -pre lzma2|81.4%|
-|sfpatcher -3 -pre lzma2|76.4%|
+|sfpatcher -3 -pre lzma2|76.0%|
 ||
 |sfpatcher -0 zstd|50.9%|
 |sfpatcher -1 zstd|32.8%|
 |sfpatcher -2 zstd|30.7%|
 |sfpatcher -3 zstd|28.3%|
-|sfpatcher -0 -pre zstd|89.6%|
 |sfpatcher -2 -pre zstd|85.5%|
 |sfpatcher -3 -pre zstd|81.2%|
 
