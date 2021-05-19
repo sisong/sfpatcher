@@ -114,11 +114,11 @@ sfpatcher支持4个级别的diff，-0,-1,-2和-3分别测试； sfpatcher支持�
 
 | 方案|平均压缩率|平均内存(MB)|平均时间(秒)|patch|最大内存(MB)|平均内存(MB)|平均时间(秒)|Kirin980时间(秒)|
 |:----|----:|----:|----:|----|----:|----:|----:|----:|
-|bsdiff|59.8%|1035|188|mem|751|243|3.44|
+|**bsdiff**|**59.8%**|1035|188|mem|751|243|3.44|
 |xdelta3|59.9%|228|36|mem|100|99|0.79|
 |hdiffz -s-16|59.0%|252|10|mem|20|19|0.77|
 |hdiffz -m-1|58.7%|781|78|mem|21|19|0.77|
-|archive-patcher|28.4%|1745|200|tmpFile|100|62|7.73|
+|**archive-patcher**|**28.4%**|1745|200|tmpFile|100|62|**7.73**|
 |ApkDiffPatch|20.7%|980|84|mem|386|137|6.70|
 |ApkDiffPatch|20.7%|980|84|mem MT|461|218|3.10|
 ||
@@ -130,19 +130,19 @@ sfpatcher支持4个级别的diff，-0,-1,-2和-3分别测试； sfpatcher支持�
 |sfpatcher -1 lzma2|30.8%|1074|79|limit mem MT|28|24|0.82|1.33|
 |sfpatcher -1 lzma2|30.8%|1074|79|mem MT|138|79|0.78|1.38|
 |sfpatcher -1 zstd|31.8%|1203|84|limit mem|26|21|0.84|1.33|
-|sfpatcher -1 zstd|31.8%|1203|84|limit mem MT|29|25|0.47|0.76|
+|**sfpatcher -1 zstd**|**31.8%**|1203|84|limit mem MT|**29**|**25**|**0.47**|**0.76**|
 |sfpatcher -1 zstd|31.8%|1203|84|mem MT|139|80|0.29|0.60|
 |sfpatcher -2 8m lzma2|27.5%|1226|82|limit mem|27|20|3.49|4.84|
-|sfpatcher -2 8m lzma2|27.5%|1226|82|limit mem MT|33|24|1.28|2.09|
+|**sfpatcher -2 8m lzma2**|**27.5%**|1226|82|limit mem MT|**33**|**24**|1.28|2.09|
 |sfpatcher -2 8m lzma2|27.5%|1226|82|mem MT|240|101|1.15|2.03|
 |sfpatcher -2 8m zstd|28.8%|2240|86|limit mem|28|20|3.01|4.08|
 |sfpatcher -2 8m zstd|28.8%|2240|86|limit mem MT|34|25|0.94|1.56|
 |sfpatcher -2 8m zstd|28.8%|2240|86|mem MT|241|102|0.73|1.35|
 |sfpatcher -2 32m lzma2|27.4%|1246|83|limit mem|56|34|3.50|4.85|
-|sfpatcher -2 32m lzma2|27.4%|1246|83|limit mem MT|62|40|1.31|2.17|
+|**sfpatcher -2 32m lzma2**|**27.4%**|1246|83|limit mem MT|**62**|**40**|**1.31**|**2.17**|
 |sfpatcher -2 32m lzma2|27.4%|1246|83|mem MT|248|108|1.15|1.96|
 |sfpatcher -2 32m zstd|28.7%|1796|89|limit mem|56|35|3.02|4.10|
-|sfpatcher -2 32m zstd|28.7%|1796|89|limit mem MT|62|41|0.95|1.63|
+|**sfpatcher -2 32m zstd**|**28.7%**|1796|89|limit mem MT|**62**|**41**|**0.95**|**1.63**|
 |sfpatcher -2 32m zstd|28.7%|1796|89|mem MT|249|108|0.74|1.33|
 |sfpatcher -2 lzma2|27.4%|1284|85|mem|151|53|3.53|4.86|
 |sfpatcher -2 lzma2|27.4%|1284|85|mem MT|264|119|1.16|2.03|
@@ -153,13 +153,13 @@ sfpatcher支持4个级别的diff，-0,-1,-2和-3分别测试； sfpatcher支持�
 |sfpatcher -2 zstd|28.6%|1386|91|tmpFile|44|33|3.54|4.53|
 |sfpatcher -2 zstd|28.6%|1386|91|tmpFile MT|49|38|1.38|1.96|
 |sfpatcher -3 8m lzma2|23.8%|1374|89|limit mem|27|22|7.09|10.28|
-|sfpatcher -3 8m lzma2|23.8%|1374|89|limit mem MT|33|27|2.06|3.67|
+|**sfpatcher -3 8m lzma2**|**23.8%**|1374|89|limit mem MT|**33**|**27**|2.06|3.67|
 |sfpatcher -3 8m lzma2|23.8%|1374|89|mem MT|375|124|1.90|3.46|
 |sfpatcher -3 8m zstd|25.3%|2386|93|limit mem|28|23|6.63|9.55|
 |sfpatcher -3 8m zstd|25.3%|2386|93|limit mem MT|34|28|1.74|3.15|
 |sfpatcher -3 8m zstd|25.3%|2386|93|mem MT|376|124|1.55|3.03|
 |sfpatcher -3 32m lzma2|23.6%|1390|88|limit mem|56|42|7.11|10.30|
-|sfpatcher -3 32m lzma2|23.6%|1390|88|limit mem MT|64|48|2.10|3.69|
+|**sfpatcher -3 32m lzma2**|**23.6%**|1390|88|limit mem MT|**64**|**48**|**2.10**|**3.69**|
 |sfpatcher -3 32m lzma2|23.6%|1390|88|mem MT|383|131|1.91|3.51|
 |sfpatcher -3 32m zstd|25.0%|1900|94|limit mem|57|43|6.64|9.61|
 |sfpatcher -3 32m zstd|25.0%|1900|94|limit mem MT|64|49|1.78|3.21|
@@ -173,11 +173,11 @@ sfpatcher支持4个级别的diff，-0,-1,-2和-3分别测试； sfpatcher支持�
 |sfpatcher -3 zstd|25.0%|1513|99|tmpFile|44|33|7.19|10.03|
 |sfpatcher -3 zstd|25.0%|1513|99|tmpFile MT|50|39|2.14|3.49|
 |sfpatcher -2 -pre lzma2|82.1%|2016|50|mem|73|64|4.98|7.00|
-|sfpatcher -2 -pre lzma2|82.1%|2016|50|mem MT|79|68|1.70|2.85|
+|**sfpatcher -2 -pre lzma2**|**82.1%**|2016|50|mem MT|79|68|**1.70**|**2.85**|
 |sfpatcher -2 -pre zstd|87.3%|2100|63|mem|73|65|3.74|5.02|
-|sfpatcher -2 -pre zstd|87.3%|2100|63|mem MT|81|69|0.80|1.52|
+|**sfpatcher -2 -pre zstd**|**87.3%**|2100|63|mem MT|81|69|**0.80**|**1.52**|
 |sfpatcher -3 -pre lzma2|77.2%|2220|57|mem|73|69|9.27|13.50|
-|sfpatcher -3 -pre lzma2|77.2%|2220|57|mem MT|79|73|2.64|4.68|
+|**sfpatcher -3 -pre lzma2**|**77.2%**|2220|57|mem MT|79|73|**2.64**|**4.68**|
 |sfpatcher -3 -pre zstd|82.8%|2359|83|mem|73|69|7.81|11.16|
 |sfpatcher -3 -pre zstd|82.8%|2359|83|mem MT|81|75|1.71|3.33|
 
