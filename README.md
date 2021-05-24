@@ -119,8 +119,10 @@ sfpatcher支持4个级别的diff，-0,-1,-2和-3分别测试； sfpatcher支持�
 |hdiffz -s-16|59.0%|147|25|mem|19|19|0.71|
 |hdiffz -m-1|58.7%|705|89|mem|21|20|0.70|
 |**archive-patcher**|**28.4%**|1745|200|tmpFile|100|62|**7.73**|
-|ApkDiffPatch|20.7%|980|84|mem|386|137|6.70|
-|ApkDiffPatch|20.7%|980|84|mem MT|461|218|3.10|
+|ApkDiffPatch|20.7%|980|84|mem|386|137|6.61|
+|ApkDiffPatch|20.7%|980|84|mem MT|461|218|3.08|
+|ApkDiffPatch|20.7%|980|84|tmpFile|22|17|7.19|
+|ApkDiffPatch|20.7%|980|84|tmpFile MT|332|90|3.57|
 ||
 |sfpatcher -0 lzma2|58.7%|789|88|mem|21|20|0.46|0.86|
 |sfpatcher -0 lzma2|58.7%|789|88|mem MT|22|21|0.38|0.72|
@@ -177,7 +179,7 @@ sfpatcher支持4个级别的diff，-0,-1,-2和-3分别测试； sfpatcher支持�
 |sfpatcher -2 -pre zstd|87.3%|1705|81|mem|73|65|3.67|5.02|
 |**sfpatcher -2 -pre zstd**|**87.3%**|1705|81|mem MT|81|69|**0.79**|**1.52**|
 |sfpatcher -3 -pre lzma2|77.1%|1931|113|mem|73|69|9.49|13.50|
-|**sfpatcher -3 -pre lzma2**|77.1%|1931|113|mem MT|79|74|**2.97**|**4.68**|
+|**sfpatcher -3 -pre lzma2**|**77.1%**|1931|113|mem MT|79|74|**2.97**|**4.68**|
 |sfpatcher -3 -pre zstd|82.8%|1901|109|mem|73|69|7.57|11.16|
 |sfpatcher -3 -pre zstd|82.8%|1901|109|mem MT|81|75|1.66|3.33|
 
