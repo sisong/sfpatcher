@@ -55,7 +55,9 @@
 - [archive-patcher](https://github.com/google/archive-patcher) 
 - [ApkDiffPatch](https://github.com/sisong/ApkDiffPatch)
 - [sfpatcher](https://github.com/sisong/sfpatcher)
-
+   
+[sfpatcher测试demo下载](https://github.com/sisong/sfpatcher/releases)   
+   
 # 测试目的
 对比多种diff&patch方案在apk文件增量更新方面的运行数据；   
 测试项主要包括：diff时间、diff内存占用、补丁大小(用压缩率代替，压缩后补丁大小/新版本apk大小)、patch时间、patch内存占用（后面这3项指标可能更重要一些）   
