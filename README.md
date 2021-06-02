@@ -186,24 +186,24 @@ sfpatcher支持4个级别的diff，-0,-1,-2和-3分别测试； sfpatcher支持�
 |sfpatcher -3 -pre zstd|82.8%|1901|109|mem MT|81|75|1.66|3.33|
 
 # sfpatcher的大规模测试
-收集了Top500中多个app应用和其多个历史版本，形成了6495个测试用例，进行了diff和patch测试并分别使用了lzma2压缩和zstd压缩输出补丁。   
-(两次测试参数略有差异)   
+收集了Top500中多个app应用(不含游戏)和其多个历史版本，形成了6495个测试用例，进行了diff和patch测试并分别使用了lzma2压缩和zstd压缩输出补丁。   
+(用了-lp-2m加8m压缩字典 -pre时加16m压缩字典)   
 
 | 方案|平均压缩率|
 |:----|----:|
 |sfpatcher -0 lzma2|50.8%|
 |sfpatcher -1 lzma2|31.5%|
 |sfpatcher -2 lzma2|29.3%|
-|sfpatcher -3 lzma2|26.6%|
-|sfpatcher -2 -pre lzma2|81.4%|
-|sfpatcher -3 -pre lzma2|76.0%|
+|sfpatcher -3 lzma2|26.7%|
+|sfpatcher -2 -pre lzma2|81.9%|
+|sfpatcher -3 -pre lzma2|76.6%|
 ||
 |sfpatcher -0 zstd|50.9%|
-|sfpatcher -1 zstd|32.8%|
+|sfpatcher -1 zstd|32.6%|
 |sfpatcher -2 zstd|30.7%|
 |sfpatcher -3 zstd|28.3%|
-|sfpatcher -2 -pre zstd|85.5%|
-|sfpatcher -3 -pre zstd|81.2%|
+|sfpatcher -2 -pre zstd|86.3%|
+|sfpatcher -3 -pre zstd|82.3%|
 
 
 联系作者：<housisong@hotmail.com>
