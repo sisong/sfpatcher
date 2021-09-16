@@ -42,6 +42,10 @@ options:
             support run by multi-thread parallel, fast!
   -m-matchScore
       matchScore>=0, DEFAULT -m-2, recommended: 0--6 etc...
+  -bm
+      set is use fast block match befor slow match, DEFAULT false;
+      if newArchiveFile similar to oldArchiveFile then diff speed++ & diff memory--,
+      but small possibility outDiffFile's size+
   -step-patchStepMemroySize
       set patch step memory size, DEFAULT -sm-2m, recommended: 64k,512k,8m etc...
   -pre
@@ -98,6 +102,8 @@ options:
 `$ sf_diff "old.apk" "new.apk" "diff.pat" -o-2 -c-zstd-22-26`
 
 * **-m 选项**：设置匹配最小分数(>=0)，默认值2；少量影响补丁包输出大小；一般输入数据可压缩性越大，这个值就可以设得越大。
+
+* **-bm 选项**：设置是否打开块匹配，从而在较慢的匹配之前进行快速匹配，默认不；一般old原始数据和new相同数据越多速度就越快，内存占用也越小，但有较小可能输出略大的补丁文件。
 
 * **-step 选项**：设置补丁包patch时的解压缩区步长，默认2MB；少量影响补丁包输出大小；一般这个值越大，输出文件越小。
 
