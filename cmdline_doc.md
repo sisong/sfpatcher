@@ -24,12 +24,16 @@ options:
                 zlib (if uncompatible, as -o-1);
                 need decompress temp buffer (see -lo),
                 run very slowly when re-compress newArchiveFile (see -ln);
+  -HD   create compressed diffFile compatible with hdiffz
+  -SD   create single compressed diffFile compatible with hdiffz -SD
+  -BSD  create diffFile compatible with bsdiff
   -c-compressType[-compressLevel]
       set outDiffFile Compress type & level, DEFAULT uncompress;
       for resave diffFile,recompress diffFile to outDiffFile by new set;
       support compress type & level:
        (re. https://github.com/sisong/lzbench/blob/master/lzbench171_sorted.md )
         -c-zlib[-{1..9}]                    DEFAULT level 9
+        -c-bzip2[-{1..9}]                   (or -bz2) DEFAULT level 9
         -c-lzma[-{0..9}[-dictSize]]         DEFAULT level 7
             dictSize can like 4096 or 4k or 4m or 128m etc..., DEFAULT 16m
             support run by 2-thread parallel.
@@ -42,10 +46,14 @@ options:
             support run by multi-thread parallel, fast!
   -m-matchScore
       matchScore>=0, DEFAULT -m-2, recommended: 0--6 etc...
-  -bm
+  -block
       set is use fast block match befor slow match, DEFAULT false;
-      if newArchiveFile similar to oldArchiveFile then diff speed++ & diff memory--,
+      if newData similar to oldData then diff speed++ & diff memory--,
       but small possibility outDiffFile's size+
+  -cache
+      set is use a big cache for slow match, DEFAULT false;
+      if newData not similar to oldData then diff speed++,
+      big cache max used O(oldFileSize) memory, and build slow(diff speed--)
   -step-patchStepMemroySize
       set patch step memory size, DEFAULT -sm-2m, recommended: 64k,512k,8m etc...
   -pre
@@ -90,8 +98,14 @@ options:
    * **-o-2**	当输入的压缩数据兼容zlib库并且压缩级别<=6时，可以得到较小的补丁，不兼容的压缩数据就会退回到-o-1模式；patch时还原压缩较慢(需要还原的数据量的上限可以用-ln控制)，并且patch时需要使用临时解压空间(见-lo和-lp)。
    * **-o-3**	当输入的压缩数据兼容zlib库时，一般可以得到最小的补丁文件；不兼容的压缩数据就会退回到-o-1模式；patch时还原压缩很慢(见-ln)，并且patch时需要使用临时解压空间(见-lo和-lp)。
 
+* **-HD 选项**： 创建和**hdiffz**兼容的补丁包文件。
+* **-SD 选项**： 创建和**hdiffz** -SD兼容的补丁包文件。
+* **-BSD 选项**：创建和**bsdiff**兼容的补丁包文件。 (注意：bsdiff模式只支持bzip2压缩插件。)   
+推荐，可以尝试利用-cache和-block来加快兼容补丁包的创建速度。
+
 * **-c 选项**：设置补丁数据使用的压缩算法；diff默认输出的补丁文件是不压缩的，可以在创建补丁时用该选项指定一个支持的压缩插件：
-   * **-c-zlib**[-{1..9}]			使用zlib算法压缩，默认压缩级别9。
+   * **-c-zlib**[-{1..9}]		使用zlib算法压缩，默认压缩级别9。
+   * **-c-bzip2**[-{1..9}] (或-bz2)	使用bzip2算法压缩，默认压缩级别9。
    * **-c-lzma**[-{0..9}[-dictSize]]	使用lzma算法压缩，默认压缩级别7，支持设置解压时字典大小，默认16MB（该值越大一般压缩的越小）；该插件支持2路并行压缩；（推荐使用lzma2）。
    * **-c-lzma2**[-{0..9}[-dictSize]]	使用lzma2算法压缩，默认压缩级别7，支持设置解压时字典大小，默认16MB；该插件支持多线程并行压缩。
    * **-c-zstd**[-{0..22}[-dictBits]]	使用zstd算法压缩，默认压缩级别20，支持设置解压时字典比特数(10--31)，默认24（即对应字典大小2^24=16MB）。
@@ -103,7 +117,9 @@ options:
 
 * **-m 选项**：设置匹配最小分数(>=0)，默认值2；少量影响补丁包输出大小；一般输入数据可压缩性越大，这个值就可以设得越大。
 
-* **-bm 选项**：设置是否打开块匹配，从而在较慢的匹配之前进行快速匹配，默认不；一般old原始数据和new相同数据越多速度就越快，内存占用也越小，但有较小可能输出略大的补丁文件。
+* **-block 选项**：设置是否打开块匹配，从而在较慢的匹配之前进行快速匹配，默认不；一般old原始数据和new相同数据越多速度就越快，内存占用也越小，但有较小可能输出略大的补丁文件。
+
+* **-cache 选项**：设置是否在匹配的时候使用一个大缓存，从而优化匹配的速度，默认不；一般old原始数据和new不相同数据越多速度就越快，该缓存需要占用oldSize相当的内存，并且建立缓存较慢需要花费额外时间。
 
 * **-step 选项**：设置补丁包patch时的解压缩区步长，默认2MB；少量影响补丁包输出大小；一般这个值越大，输出文件越小。
 
@@ -144,10 +160,12 @@ options:
     maxUncompressMemory can like 8388608,8m,40m,120m,1g etc...
   -lp
       set maxUncompressMemory=limitPatchMemSize, patch run with limit memory.
-  -v  output Version info.
   -p-parallelThreadNumber
     open multi-thread Parallel patch model, DEFAULT closed;
     if parallelThreadNumber>=2 then model opened!
+  -t  test other patcher, diffFile created by hdiffz,bsdiff,
+      or created by sf_diff -HD,sf_diff -SD,sf_diff -BSD;
+  -v  output Version info.
 ```
 
 * **打补丁**：可以使用命令行工具sf_patch命令在PC上测试补丁包，将旧版本apk文件应用相应的补丁文件升级到新版本的apk文件的命令如下：
@@ -164,5 +182,8 @@ options:
 * **-lp 选项**： 设置maxUncompressMemory=limitPatchMemSize，从而使用限制内存占用的模式执行patch；limitPatchMemSize是diff时指定的。   
 
 * **-p 选项**：设置patch时使用的最大线程数，一般来说线程数越多速度越快。很多时候该参数对-o-0生成的补丁加速作用较小，对-o-1生成的补丁有不错的并行加速效果（可以不用给太多的线程数）；而对-o-2和-o-3生成的补丁并行加速效果会非常好。并行调度代码能很好的支持big.LITTLE大小核架构的CPU。
+
+* **-t 选项**： 测试其他兼容格式的补丁合成，支持**hdiffz**、**bsdiff**创建的补丁包文件，或者用sf_diff -HD、sf_diff -SD、sf_diff -BSD创建的兼容补丁包文件。   
+对于bsdiff的补丁，和**bspatch**不同，本程序使用一个较小的固定内存大小O(1)的模式执行patch过程。
 
 * **-v 选项**： 输出当前程序的版本等信息。 
