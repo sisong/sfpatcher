@@ -109,10 +109,13 @@
 patch时标注tmpFile表示使用了临时文件来储存中间数据；mem表示在内存中执行不使用临时文件；limit mem表示使用限制内存占用的模式执行；而标注MT表示开启了多线程(8个)并行。   
 **BsDiff** v4.3 还是保持着使用bzip2算法压缩补丁。   
 **xdelta** v3.1.0 使用`-e -n -f -s`来创建补丁, 而用`-d -f -s`参数来执行的patch。   
-**HDiffPatch** v3.1.2 支持2种diff模式，-s和-m模式分别测试，输出补丁用的lzma2压缩。   
+**HDiffPatch** v3.1.2 支持2种diff模式，-s和-m模式分别测试，输出补丁用的lzma2压缩。另外补充了zlib压缩和不压缩的测试。   
 **archive-patcher** v1.0 一般使用brotli算法压缩补丁，这里为了diff速度并更好的和其他方案对比补丁大小，diff时输出不压缩的补丁，然后再额外使用lzma2压缩补丁。 需要注意：这时收集到的diff数据不包含额外压缩时的时间和内存消耗，收集到的patch数据也**不包含**解压的时间和内存消耗。   
 **ApkDiffPatch** v1.3.6 使用了lzma来压缩输出的补丁。   
 **sfpatcher** v1.0.7 支持4个级别的diff，-0,-1,-2和-3分别测试； sfpatcher支持不需要旧版本apk而直接重新压缩新版本apk的模式，标记为 -pre；sfpatcher支持多种压缩输出，这里测试了zstd-21和lzma2-9这2种。   
+sfpatcher支持输出兼容bsdiff的补丁(bzip2压缩)，补充了sf_diff使用-BSD -cache -block参数后的测试结果，patch测试数据用的sf_patch -t测试的补丁。   
+sfpatcher补充测试了用ApkNormalized(ApkDiffPatch方案)处理过的apk文件，分别进行增量测试和重压缩测试。   
+
 
 另外在一部安卓手机(CPU:Kirin980)上对sfpatcher进行了一些patch时间测试，补充到了最后一列。   
 
@@ -120,15 +123,21 @@ patch时标注tmpFile表示使用了临时文件来储存中间数据；mem表�
 
 |方案|平均压缩率|平均内存(MB)|平均时间(秒)|patch|最大内存(MB)|平均内存(MB)|平均时间(秒)|Kirin980时间(秒)|
 |:----|----:|----:|----:|----|----:|----:|----:|----:|
-|**bsdiff**|**59.8%**|1035|188|mem|751|243|**3.44**|
-|xdelta3|59.9%|228|36|mem|100|99|0.79|
-|hdiffz -s-16|59.0%|147|25|mem|19|19|0.71|
-|**hdiffz -m-1**|**58.7%**|705|89|mem|**21**|**20**|**0.70**|
+|**bsdiff +bzip2**|**59.8%**|1035|188|mem|751|243|**3.44**|
+|**sfpatcher -BSD**|**59.5%**|523|32|mem|**14**|**12**|**3.40**|
+|xdelta3 +lzma|59.9%|228|36|mem|100|99|0.79|
+|hdiffz -s-16 +lzma2|59%|147|25|mem|19|19|0.71|
+|**hdiffz -m-1 +lzma2**|**58.7%**|705|89|mem|**21**|**20**|**0.70**|
+|hdiffz -m-1 +zlib|59.1%|697|79|mem|11|11|0.19|
+|**hdiffz -m-1 +no**|**59.8%**|697|79|mem|**11**|**11**|**0.13**|
 |**archive-patcher**|**28.4%**|**1745**|**200**|tmpFile|100|62|**7.73**|
-|ApkDiffPatch|20.7%|980|84|mem|386|137|6.61|
-|ApkDiffPatch|20.7%|980|84|mem MT|461|218|3.08|
-|ApkDiffPatch|20.7%|980|84|tmpFile|22|17|7.19|
-|ApkDiffPatch|20.7%|980|84|tmpFile MT|332|90|3.57|
+|ApkDiffPatch +lzma|20.7%|980|84|mem|386|137|6.61|
+|ApkDiffPatch +lzma|20.7%|980|84|mem MT|461|218|3.08|
+|ApkDiffPatch +lzma|20.7%|980|84|tmpFile|22|17|7.19|
+|ApkDiffPatch +lzma|20.7%|980|84|tmpFile MT|332|90|3.57|
+|sfpatcher -3 32m + Normalized +lzma2|20.9%|1032|63|limit mem|57|47|5.50|
+|**sfpatcher -3 32m + Normalized +lzma2**|**20.9%**|1032|63|limit mem MT|**64**|**53**|**1.67**|
+|sfpatcher -3 32m + Normalized +lzma2|20.9%|1032|63|mem MT|382|142|1.39|
 ||
 |sfpatcher -0 lzma2|58.7%|785|49|mem|21|20|0.46|0.87|
 |sfpatcher -0 lzma2|58.7%|785|49|mem MT|23|21|0.38|0.73|
@@ -188,6 +197,8 @@ patch时标注tmpFile表示使用了临时文件来储存中间数据；mem表�
 |**sfpatcher -3 -pre lzma2**|**77.4%**|**586**|**95**|mem MT|**47**|**43**|**2.91**|**5.16**|
 |sfpatcher -3 -pre zstd|82.7%|561|88|mem|42|38|7.24|10.86|
 |sfpatcher -3 -pre zstd|82.7%|561|88|mem MT|49|44|1.59|3.21|
+|sfpatcher -3 -pre + Normalized lzma2|73.6%|601|89|mem|41|38|8.19|
+|**sfpatcher -3 -pre + Normalized lzma2|**73.6%**|**601**|**89**|mem MT|**46**|**43**|**2.36**|
 
 
 # sfpatcher的大规模测试
