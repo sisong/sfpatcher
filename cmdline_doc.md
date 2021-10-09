@@ -160,9 +160,11 @@ options:
     maxUncompressMemory can like 8388608,8m,40m,120m,1g etc...
   -lp
       set maxUncompressMemory=limitPatchMemSize, patch run with limit memory.
+  -ct
+      set is run patch with continue mode, DEFAULT false.
   -p-parallelThreadNumber
-    open multi-thread Parallel patch model, DEFAULT closed;
-    if parallelThreadNumber>=2 then model opened!
+    open multi-thread Parallel patch mode, DEFAULT closed;
+    if parallelThreadNumber>=2 then mode opened!
   -t  test other patcher, diffFile created by hdiffz,bsdiff,
       or created by sf_diff -HD,sf_diff -SD,sf_diff -BSD;
   -v  output Version info.
@@ -180,6 +182,8 @@ options:
 	推荐做法：diff时始终设置合适的-lp限制值，从而控制patch时的最大内存占用，并且不使用临时文件。
 
 * **-lp 选项**： 设置maxUncompressMemory=limitPatchMemSize，从而使用限制内存占用的模式执行patch；limitPatchMemSize是diff时指定的。   
+
+* **-ct 选项**： 设置是否使用继续patch模式，默认不；该模式支持从上次程序意外结束时的outNewArchiveFile最后写入位置继续patch,从而得到更好的patch体验。继续patch时不会检查已有的outNewArchiveFile数据是否正确；继续时能够跳过已经输出的outNewArchiveFile数据的压缩过程，并跳过部分oldNewArchiveFile数据的解压过程，但不能跳过对diffFile文件的解压和解析等过程。
 
 * **-p 选项**：设置patch时使用的最大线程数，一般来说线程数越多速度越快。很多时候该参数对-o-0生成的补丁加速作用较小，对-o-1生成的补丁有不错的并行加速效果（可以不用给太多的线程数）；而对-o-2和-o-3生成的补丁并行加速效果会非常好。并行调度代码能很好的支持big.LITTLE大小核架构的CPU。
 
