@@ -1,5 +1,5 @@
 ﻿# sfpatcher：针对应用商店的apk增量算法
-
+v1.0.15   
 联系作者： <housisong@hotmail.com>
 
 ## 定义
@@ -14,7 +14,7 @@
 应用商店使用的增量更新算法一般选择使用的是基于字节的 diff 和 patch 算法，包括：[BsDiff ](http://www.daemonology.net/bsdiff)、[xdelta3](https://github.com/jmacd/xdelta)、[HDiffPatch](https://github.com/sisong/HDiffPatch)等。   
  - **BsDiff** 是当前选择使用较多的算法，创建的补丁小，代码量小，容易移植。但diff和patch场景下执行速度都很慢、内存占用巨大，应用于应用商店等场景时需要进行一些修改定制。
  - **xdelta3** 在diff和patch场景下执行速度都很快，输出标准化的补丁格式(gdiff 格式)，apk补丁大小和BsDiff接近或略大，内存占用中等；**三星**的应用商店就应用了 gdiff 补丁。该算法在diff处理较大文件的时候（比如几百MB以上，而现在很多游戏apk都接近2GB了），常会输出不正常的巨大补丁，除非使用和文件大小相当的参考内存来diff和patch(这是原理上决定的)，而这时内存占用的优势就没有了。
- - **HDiffPatch** 是笔者开源的算法，创建的补丁一般比BsDiff略小一些，diff(-s模式)和patch场景下执行速度都很快，内存占用都很小。 diff时也支持-m模式，用更大的内存和时间代价(这时也比BsDiff快得多)来得到更小一些的补丁包。 HDiffPatch 现在已经被**腾讯**、**OPPO**、**VIVO**等的应用商店所使用，也被**华为**开源的IoT操作系统用于ota升级；从为8位CPU、4KB内存、2百KB储存的IoT设备创建ota增量补丁(4KB内存里一边解压一边patch!)，到为上百GB的游戏创建更新补丁，HDiffPatch 算法得到了越来越广泛的应用。
+ - **HDiffPatch** 是笔者开源的算法，创建的补丁一般比BsDiff略小一些，diff(-s模式)和patch场景下执行速度都很快，内存占用可控并很小。 diff时也支持-m模式，用更大的内存和时间代价(这时也比BsDiff快得多)来得到更小一些的补丁包。 HDiffPatch 现在已经被**腾讯**、**VIVO**、**OPPO**、**华为**、**字节跳动**等所使用；从为8位CPU、4KB内存、2百KB储存的IoT设备创建ota增量补丁(4KB内存里一边解压一边patch!)，到为上百GB的游戏创建更新补丁，HDiffPatch 算法得到了越来越广泛的应用。
 ## 针对apk的diff&patch算法
 现在提到的增量更新实现方案都只是把apk单纯的看作文件数据直接用算法进行diff&patch，而没有考虑apk包本身是一个zip压缩包的事实。这种简单使用方式可以概括为公式：
 ```c
@@ -41,12 +41,13 @@
 - patch时的内存等资源占用可控；diff时支持多种方案限制patch时的内存占用到合适的约定水平。支持patch时O(1)平均内存占用(并且不使用临时文件)的优化补丁包！
 - 优化的用户体验：下载数据的同时就可以开始patch，不用将补丁文件保存到内存或硬盘上，结合快速的patch，很多时候下载完成时，就可以得到了完整的新版本apk文件。
 - 利用精确还原算法，对于初次下载的apk文件也能进行解压后的重压缩；从而节省用户初次下载apk时的带宽。在保持较快速度的情况下平均比直接下载apk文件减少23%的数据，部分文件能减少35%以上的数据！
+- 部分支持从中断的位置继续patch的特性，节省程序被终止后再次执行程序时的打补丁时间。
 
 注1：所有测试数据来源于收集的一些常用apk应用和游戏，共32个用例，在Kirin980上测试patch（见性能测试对比数据）
 
 ## 方案主要特性对比
 - **sfpatcher 和 archive-patcher**：sfpatcher 的patch端比 archive-patcher 快很多倍，资源占用小，能够满足各种使用场景的要求，而 archive-patcher 一般用于后台更新场景；sfpatcher 生成的补丁大小在很多情况下也可以比 archive-patcher 更小。
-- **sfpatcher 和 ApkDiffPatch**：sfpatcher 的patch端比 ApkDiffPatch 更快一些，内存占用可控；sfpatcher 生成的补丁平均比 ApkDiffPatch 大一些；sfpatcher 可用于广泛的场景，而ApkDiffPatch用于能够对apk文件进行重新签名的场景。
+- **sfpatcher 和 ApkDiffPatch**：sfpatcher 的patch端比 ApkDiffPatch 更快一些，内存占用可控；sfpatcher 生成的补丁平均比 ApkDiffPatch 略大一些；sfpatcher 可用于广泛的场景，而ApkDiffPatch用于能够对apk文件进行重新签名的场景。
 
 # 参与测试的diff&patch方案
 - [BsDiff](http://www.daemonology.net/bsdiff)
@@ -104,103 +105,84 @@
 |32|yuanshichuanqi1.3.608.apk <-- yuanshichuanqi1.3.607.apk|192578139|192577253|
 
 # 测试条件
-在一台笔记本PC上对比测试，CPU Ryzen 4800H，Windows10   
+在一台笔记本PC上对比测试，CPU Ryzen 5800H，Windows11, SSD硬盘   
 测试时关闭了HDiffPatch和sfpatcher在diff时的多线程。   
 patch时标注tmpFile表示使用了临时文件来储存中间数据；mem表示在内存中执行不使用临时文件；limit mem表示使用限制内存占用的模式执行；而标注MT表示开启了多线程(8个)并行。   
 **BsDiff** v4.3 还是保持着使用bzip2算法压缩补丁。   
 **xdelta** v3.1.0 使用`-e -n -f -s`来创建补丁, 而用`-d -f -s`参数来执行的patch。   
-**HDiffPatch** v3.1.2 支持2种diff模式，-s和-m模式分别测试，输出补丁用的lzma2压缩。另外补充了zlib压缩和不压缩的测试。   
-**archive-patcher** v1.0 一般使用brotli算法压缩补丁，这里为了diff速度并更好的和其他方案对比补丁大小，diff时输出不压缩的补丁，然后再额外使用lzma2压缩补丁。 需要注意：这时收集到的diff数据不包含额外压缩时的时间和内存消耗，收集到的patch数据也**不包含**解压的时间和内存消耗。   
+**HDiffPatch** v4.1.0 支持2种diff模式，`-s-16`和`-m-1 -cache -block`模式分别测试，输出补丁时分别测试了用lzma2、zstd压缩和不压缩的测试。HDiffPatch支持输出兼容bsdiff的补丁(bzip2压缩)，补充了`-BSD -m-1 -cache -block`参数后的测试结果。   
+**archive-patcher** v1.0 一般使用gzip或brotli算法压缩补丁，这里为了diff速度并更好的和其他方案对比补丁大小，diff时输出不压缩的补丁，然后再额外使用lzma2压缩补丁。 需要注意：这时收集到的diff数据不包含额外压缩时的时间和内存消耗，收集到的patch数据也**不包含**解压的时间和内存消耗。   
 **ApkDiffPatch** v1.3.6 使用了lzma来压缩输出的补丁。   
-**sfpatcher** v1.0.14 支持4个级别的diff，-0,-1,-2和-3分别测试； sfpatcher支持不需要旧版本apk而直接重新压缩新版本apk的模式，标记为 -pre；sfpatcher支持多种压缩输出，这里测试了zstd-21和lzma2-9这2种。   
-为了更快的生成补丁，sfpatcher始终使用了-cache -block -d参数。   
-sfpatcher支持输出兼容bsdiff的补丁(bzip2压缩)，补充了sf_diff使用-BSD参数后的测试结果，patch测试数据用的sf_patch -t测试的补丁。   
+**sfpatcher** v1.0.15 支持4个级别的diff，-0,-1,-2和-3分别测试； sfpatcher支持不需要旧版本apk而直接重新压缩新版本apk的模式，标记为 -pre；sfpatcher支持多种压缩输出，这里测试了zstd-21和lzma2-9这2种。   
 sfpatcher补充测试了用ApkNormalized(ApkDiffPatch方案)处理过的apk文件，分别进行增量测试和重压缩测试。   
-
-
+   
 另外在一部安卓手机(CPU:Kirin980)上对sfpatcher进行了一些patch时间测试，补充到了最后一列。   
 
 # 测试汇总   
 
 |方案|平均压缩率|平均内存(MB)|平均时间(秒)|patch|最大内存(MB)|平均内存(MB)|平均时间(秒)|Kirin980时间(秒)|
 |:----|----:|----:|----:|----|----:|----:|----:|----:|
-|**bsdiff +bzip2**|**59.8%**|1035|188|mem|751|243|**3.44**|
-|**sfpatcher -BSD**|**59.5%**|523|32|mem|**14**|**12**|**3.40**|
-|xdelta3 +lzma|59.9%|228|36|mem|100|99|0.79|
-|hdiffz -s-16 +lzma2|59.0%|147|25|mem|19|19|0.71|
-|**hdiffz -m-1 +lzma2**|**58.7%**|705|89|mem|**21**|**20**|**0.70**|
-|hdiffz -m-1 +zlib|59.1%|697|79|mem|11|11|0.19|
-|**hdiffz -m-1 +no**|**59.8%**|697|79|mem|**11**|**11**|**0.13**|
-|**archive-patcher**|**28.4%**|**1745**|**200**|tmpFile|100|62|**7.73**|
-|ApkDiffPatch +lzma|20.7%|980|84|mem|386|137|6.61|
-|ApkDiffPatch +lzma|20.7%|980|84|mem MT|461|218|3.08|
-|ApkDiffPatch +lzma|20.7%|980|84|tmpFile|22|17|7.19|
-|ApkDiffPatch +lzma|20.7%|980|84|tmpFile MT|332|90|3.57|
-|sfpatcher -3 32m + Normalized +lzma2|20.9%|1032|63|limit mem|57|47|5.50|
-|**sfpatcher -3 32m + Normalized +lzma2**|**20.9%**|1032|63|limit mem MT|**64**|**53**|**1.67**|
-|sfpatcher -3 32m + Normalized +lzma2|20.9%|1032|63|mem MT|382|142|1.39|
+|xdelta3 lzma|**59.9%**|228|42|mem|**101**|**100**|**0.74**|
+|**bsdiff bzip2**|**59.8%**|1035|122|mem|752|244|**2.85**|
+|hdiffz -m-1 -BSD|59.5%|524|21|mem|14|13|2.75|
+|**hdiffz -m-1 no**|**59.9%**|524|16|mem|4|4|**0.18**|
+|**hdiffz -m-1 zstd**|**58.7%**|536|28|mem|21|20|**0.20**|
+|**hdiffz -m-1 lzma2**|**58.7%**|537|34|mem|20|20|**0.42**|
+|hdiffz -s-16 no|60.5%|133|**4**|mem|4|4|0.17|
+|hdiffz -s-16 zstd|59.3%|139|14|mem|20|20|0.19|
+|**archive-patcher**|**28.4%**|**1731**|**139**|tmpFile|96|63|**7.42**|
+|ApkDiffPatch lzma|20.5%|982|60|mem|386|138|5.73|
+|ApkDiffPatch lzma|**20.5%**|982|60|mem MT|461|211|**2.50**|
+|ApkDiffPatch lzma|20.5%|982|60|tmpFile|22|17|6.20|
+|ApkDiffPatch lzma|20.5%|982|60|tmpFile MT|207|84|2.87|
+|sfpatcher -3 32m lzma2 + Normalized |20.9%|1032|48|limit mem|57|47|4.93|
+|**sfpatcher -3 32m lzma2 + Normalized **|**20.9%**|1032|48|limit mem MT|63|52|**1.51**|
+|sfpatcher -3 32m lzma2 + Normalized |20.9%|1032|48|mem MT|397|142|1.24|
 ||
-|sfpatcher -0 lzma2|58.7%|537|40|mem|21|20|0.46|0.91|
-|sfpatcher -0 lzma2|58.7%|537|40|mem MT|23|21|0.38|0.80|
-|sfpatcher -0 zstd|58.7%|617|32|mem|22|21|0.19|0.44|
-|sfpatcher -0 zstd|58.7%|617|32|mem MT|23|22|0.14|0.38|
-|sfpatcher -1 lzma2|30.8%|726|64|limit mem|26|21|1.14|1.85|
-|sfpatcher -1 lzma2|30.8%|726|64|limit mem MT|28|24|0.76|1.30|
-|sfpatcher -1 lzma2|30.8%|726|64|mem MT|138|78|0.77|1.40|
-|sfpatcher -1 zstd|31.7%|774|61|limit mem|27|22|0.59|0.99|
-|**sfpatcher -1 zstd**|**31.7%**|**774**|**61**|limit mem MT|**29**|**24**|**0.32**|**0.54**|
-|sfpatcher -1 zstd|31.7%|774|61|mem MT|139|78|0.25|0.53|
-|sfpatcher -2 8m lzma2|27.5%|859|67|limit mem|27|20|3.23|4.69|
-|**sfpatcher -2 8m lzma2**|**27.5%**|859|67|limit mem MT|**33**|**25**|1.22|2.10|
-|sfpatcher -2 8m lzma2|27.5%|859|67|mem MT|240|101|1.11|2.10|
-|sfpatcher -2 8m zstd|28.7%|891|64|limit mem|28|21|2.73|3.92|
-|sfpatcher -2 8m zstd|28.7%|891|64|limit mem MT|34|25|0.83|1.44|
-|sfpatcher -2 8m zstd|28.7%|891|64|mem MT|241|101|0.68|1.31|
-|sfpatcher -2 32m lzma2|27.4%|861|66|limit mem|56|34|3.25|4.70|
-|**sfpatcher -2 32m lzma2**|**27.4%**|**861**|**66**|limit mem MT|**62**|**40**|**1.24**|**2.18**|
-|sfpatcher -2 32m lzma2|27.4%|861|66|mem MT|248|107|1.12|2.00|
-|sfpatcher -2 32m zstd|28.5%|892|64|limit mem|57|35|2.76|3.95|
-|**sfpatcher -2 32m zstd**|**28.5%**|**892**|**64**|limit mem MT|**62**|**41**|**0.85**|**1.50**|
-|sfpatcher -2 32m zstd|28.5%|892|64|mem MT|249|108|0.68|1.31|
-|sfpatcher -2 lzma2|27.4%|872|67|mem|151|53|3.25|4.70|
-|sfpatcher -2 lzma2|27.4%|872|67|mem MT|264|119|1.12|1.97|
-|sfpatcher -2 lzma2|27.4%|872|67|tmpFile|43|33|3.80|5.16|
-|sfpatcher -2 lzma2|27.4%|872|67|tmpFile MT|49|38|1.58|2.35|
-|sfpatcher -2 zstd|28.5%|894|66|mem|152|54|2.75|3.93|
-|sfpatcher -2 zstd|28.5%|894|66|mem MT|265|120|0.68|1.28|
-|sfpatcher -2 zstd|28.5%|894|66|tmpFile|44|33|3.30|4.41|
-|sfpatcher -2 zstd|28.5%|894|66|tmpFile MT|50|38|1.29|1.87|
-|sfpatcher -3 8m lzma2|23.8%|976|73|limit mem|27|22|6.61|9.92|
-|**sfpatcher -3 8m lzma2**|**23.8%**|976|73|limit mem MT|**33**|**27**|1.96|3.56|
-|sfpatcher -3 8m lzma2|23.8%|976|73|mem MT|375|123|1.81|3.45|
-|sfpatcher -3 8m zstd|25.1%|995|71|limit mem|28|23|6.15|9.22|
-|sfpatcher -3 8m zstd|25.1%|995|71|limit mem MT|34|28|1.62|3.02|
-|sfpatcher -3 8m zstd|25.1%|995|71|mem MT|376|124|1.45|2.82|
-|sfpatcher -3 32m lzma2|23.6%|976|70|limit mem|56|43|6.64|9.95|
-|**sfpatcher -3 32m lzma2**|**23.6%**|**976**|**70**|limit mem MT|**64**|**48**|**2.00**|**3.68**|
-|sfpatcher -3 32m lzma2|23.6%|976|70|mem MT|397|131|1.82|3.40|
-|sfpatcher -3 32m zstd|24.9%|995|68|limit mem|57|43|6.19|9.25|
-|sfpatcher -3 32m zstd|24.9%|995|68|limit mem MT|64|49|1.65|3.11|
-|sfpatcher -3 32m zstd|24.9%|995|68|mem MT|398|131|1.46|2.82|
-|sfpatcher -3 lzma2|23.5%|975|71|mem|151|63|6.63|9.95|
-|sfpatcher -3 lzma2|23.5%|975|71|mem MT|413|142|1.82|3.42|
-|sfpatcher -3 lzma2|23.5%|975|71|tmpFile|43|33|7.21|10.44|
-|sfpatcher -3 lzma2|23.5%|975|71|tmpFile MT|49|38|2.34|3.91|
-|sfpatcher -3 zstd|24.8%|996|70|mem|152|63|6.18|9.23|
-|sfpatcher -3 zstd|24.8%|996|70|mem MT|414|143|1.45|2.80|
-|sfpatcher -3 zstd|24.8%|996|70|tmpFile|44|34|6.75|9.76|
-|sfpatcher -3 zstd|24.8%|996|70|tmpFile MT|50|39|2.04|3.42|
-|sfpatcher -2 -pre lzma2|82.4%|564|87|mem|41|38|5.61|8.33|
-|**sfpatcher -2 -pre lzma2**|**82.4%**|**564**|**87**|mem MT|**47**|**41**|**2.42**|**4.04**|
-|sfpatcher -2 -pre zstd|87.2%|533|70|mem|42|38|3.52|5.05|
-|**sfpatcher -2 -pre zstd**|**87.2%**|**533**|**70**|mem MT|**49**|**42**|**0.75**|**1.53**|
-|sfpatcher -3 -pre lzma2|77.4%|586|96|mem|41|38|9.21|13.91|
-|**sfpatcher -3 -pre lzma2**|**77.4%**|**586**|**96**|mem MT|**47**|**43**|**2.93**|**5.21**|
-|sfpatcher -3 -pre zstd|82.7%|561|90|mem|42|38|7.29|10.91|
-|sfpatcher -3 -pre zstd|82.7%|561|90|mem MT|49|44|1.60|3.25|
-|sfpatcher -3 -pre + Normalized lzma2|73.6%|601|89|mem|41|38|8.19|
-|**sfpatcher -3 -pre + Normalized lzma2**|**73.6%**|**601**|**89**|mem MT|**46**|**43**|**2.36**|
-
+|sfpatcher -0 zstd|58.7%|617|26|mem|22|21|0.17|0.43|
+|sfpatcher -0 zstd|58.7%|617|26|mem MT|23|21|0.13|0.38|
+|sfpatcher -0 lzma2|58.7%|537|33|mem|21|20|0.41|0.92|
+|sfpatcher -0 lzma2|58.7%|537|33|mem MT|23|21|0.36|0.79|
+|sfpatcher -1 zstd|31.7%|773|44|limit mem|27|22|0.52|0.99|
+|**sfpatcher -1 zstd**|**31.7%**|**773**|**44**|limit mem MT|**29**|**24**|**0.29**|**0.54**|
+|sfpatcher -1 zstd|31.7%|773|44|mem MT|139|78|0.23|0.53|
+|sfpatcher -1 lzma2|30.8%|726|46|limit mem|26|21|0.99|1.84|
+|sfpatcher -1 lzma2|30.8%|726|46|limit mem MT|28|24|0.69|1.24|
+|sfpatcher -1 lzma2|30.8%|726|46|mem MT|138|77|0.68|1.38|
+|sfpatcher -2 8m zstd|28.7%|891|47|limit mem|28|21|2.45|3.68|
+|sfpatcher -2 8m zstd|**28.7%**|891|47|limit mem MT|**34**|25|0.76|1.40|
+|sfpatcher -2 8m zstd|28.7%|891|47|mem MT|241|101|0.61|1.31|
+|sfpatcher -2 8m lzma2|27.5%|860|50|limit mem|28|20|2.88|4.44|
+|sfpatcher -2 8m lzma2|27.5%|860|50|limit mem MT|33|24|1.11|2.01|
+|sfpatcher -2 8m lzma2|27.5%|860|50|mem MT|240|100|1.02|1.97|
+|sfpatcher -2 32m zstd|28.5%|892|48|limit mem|57|35|2.46|3.70|
+|**sfpatcher -2 32m zstd**|**28.5%**|892|48|limit mem MT|63|39|**0.77**|**1.45**|
+|sfpatcher -2 32m zstd|28.5%|892|48|mem MT|249|108|0.62|1.31|
+|sfpatcher -2 32m lzma2|27.4%|861|50|limit mem|56|34|2.90|4.46|
+|**sfpatcher -2 32m lzma2**|**27.4%**|861|50|limit mem MT|62|39|**1.12**|**2.06**|
+|sfpatcher -2 32m lzma2|27.4%|861|50|mem MT|248|107|1.02|1.95|
+|sfpatcher -3 8m zstd|25.1%|995|53|limit mem|28|23|5.60|8.40|
+|sfpatcher -3 8m zstd|25.1%|995|53|limit mem MT|34|28|1.49|2.82|
+|sfpatcher -3 8m zstd|25.1%|995|53|mem MT|376|124|1.33|2.82|
+|sfpatcher -3 8m lzma2|23.8%|976|56|limit mem|28|22|6.00|9.11|
+|sfpatcher -3 8m lzma2|23.8%|976|56|limit mem MT|33|27|1.79|3.30|
+|sfpatcher -3 8m lzma2|23.8%|976|56|mem MT|375|123|1.69|3.24|
+|sfpatcher -3 32m zstd|24.9%|995|52|limit mem|57|43|5.63|8.43|
+|sfpatcher -3 32m zstd|24.9%|995|52|limit mem MT|64|48|1.54|2.88|
+|sfpatcher -3 32m zstd|24.9%|995|52|mem MT|398|131|1.35|2.82|
+|sfpatcher -3 32m lzma2|23.6%|976|54|limit mem|57|43|6.02|9.13|
+|**sfpatcher -3 32m lzma2**|**23.6%**|976|54|limit mem MT|**64**|**48**|**1.83**|**3.41**|
+|sfpatcher -3 32m lzma2|23.6%|976|54|mem MT|397|131|1.70|3.19|
+|sfpatcher -2 -pre zstd|87.2%|533|56|mem|42|38|3.15|4.68|
+|**sfpatcher -2 -pre zstd**|**87.2%**|533|56|mem MT|49|42|**0.69**|**1.53**|
+|sfpatcher -2 -pre lzma2|82.4%|564|69|mem|41|38|4.99|7.95|
+|**sfpatcher -2 -pre lzma2**|**82.4%**|564|69|mem MT|47|41|**2.15**|**3.93**|
+|sfpatcher -3 -pre zstd|82.7%|561|71|mem|42|38|6.63|9.94|
+|sfpatcher -3 -pre zstd|82.7%|561|71|mem MT|49|44|1.52|3.25|
+|sfpatcher -3 -pre lzma2|77.4%|586|76|mem|41|38|8.28|12.91|
+|**sfpatcher -3 -pre lzma2**|**77.4%**|586|76|mem MT|47|43|**2.66**|**4.98**|
+|sfpatcher -3 -pre lzma2 +Normalized|73.6%|601|72|mem|41|38|7.32|
+|**sfpatcher -3 -pre lzma2 +Normalized**|**73.6%%**|601|72|mem MT|47|43|**2.13**|
 
 
 # sfpatcher的大规模测试
