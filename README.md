@@ -135,9 +135,9 @@ sfpatcher补充测试了用ApkNormalized(ApkDiffPatch方案)处理过的apk文�
 |ApkDiffPatch lzma|**20.5%**|982|60|mem MT|461|211|**2.50**|
 |ApkDiffPatch lzma|20.5%|982|60|tmpFile|22|17|6.20|
 |ApkDiffPatch lzma|20.5%|982|60|tmpFile MT|207|84|2.87|
-|sfpatcher -3 32m lzma2 + Normalized |20.9%|1032|48|limit mem|57|47|4.93|
-|**sfpatcher -3 32m lzma2 + Normalized **|**20.9%**|1032|48|limit mem MT|63|52|**1.51**|
-|sfpatcher -3 32m lzma2 + Normalized |20.9%|1032|48|mem MT|397|142|1.24|
+|sfpatcher -3 32m lzma2 Normalized|20.9%|1032|48|limit mem|57|47|4.93|
+|**sfpatcher -3 32m lzma2 Normalized**|**20.9%**|1032|48|limit mem MT|63|52|**1.51**|
+|sfpatcher -3 32m lzma2 Normalized|20.9%|1032|48|mem MT|397|142|1.24|
 ||
 |sfpatcher -0 zstd|58.7%|617|26|mem|22|21|0.17|0.43|
 |sfpatcher -0 zstd|58.7%|617|26|mem MT|23|21|0.13|0.38|
@@ -181,8 +181,8 @@ sfpatcher补充测试了用ApkNormalized(ApkDiffPatch方案)处理过的apk文�
 |sfpatcher -3 -pre zstd|82.7%|561|71|mem MT|49|44|1.52|3.25|
 |sfpatcher -3 -pre lzma2|77.4%|586|76|mem|41|38|8.28|12.91|
 |**sfpatcher -3 -pre lzma2**|**77.4%**|586|76|mem MT|47|43|**2.66**|**4.98**|
-|sfpatcher -3 -pre lzma2 +Normalized|73.6%|601|72|mem|41|38|7.32|
-|**sfpatcher -3 -pre lzma2 +Normalized**|**73.6%%**|601|72|mem MT|47|43|**2.13**|
+|sfpatcher -3 -pre lzma2 Normalized|73.6%|601|72|mem|41|38|7.32|
+|**sfpatcher -3 -pre lzma2 Normalized**|**73.6%**|601|72|mem MT|47|43|**2.13**|
 
 
 # sfpatcher的大规模测试
