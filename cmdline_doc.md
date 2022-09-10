@@ -1,5 +1,7 @@
 联系作者： housisong@hotmail.com   
    
+[**sfpatcher** 命令行工具下载](https://github.com/sisong/sfpatcher/releases)（支持Windows、Linux、MacOS）
+
 # 创建补丁的工具sf_diff
 使用命令行工具sf_diff命令，来创建新旧版本apk文件之间的补丁，直接运行sf_diff命令会得到如下所示的帮助信息输出：
 ```
@@ -83,14 +85,16 @@ options:
   -v  output Version info.
 ```
 
- * **创建补丁**：比如你有一个旧版本的old.apk文件，现在有了一个新版本new.apk，创建升级补丁文件diff.pat的命令为：
- `$ sf_diff "old.apk" "new.apk" "diff.pat"`
+ * **创建补丁**：比如你有一个旧版本的old.apk文件，现在有了一个新版本new.apk，创建升级补丁文件diff.pat的命令为：   
+ `$ sf_diff "old.apk" "new.apk" "diff.pat"`   
 创建成功，返回0，其他任何值都是发现了错误。 如果用户设备上安装了old.apk，下载diff.pat就能用本方案提供的patch算法升级到new.apk。   
  * 补丁**另存**：将已有的补丁文件使用新的压缩参数来重新压缩；   
-比如使用lzma2算法开启8线程来重新压缩补丁：
-`$ sf_diff -c-lzma2-9-64m -p-8 "diff0.pat" "diff1.pat"`   
+比如使用lzma2算法开启8线程来重新压缩补丁：   
+`$ sf_diff -c-lzma2-9-16m -p-8 "diff0.pat" "diff1.pat"`   
    
- * **附加参数**都以“-”符号开头紧跟字母来进行不同的设置，可以放置在命令行的任意位置，如果该项设置还有参数的话后面继续用“-”间隔。[…] 框起来的部分表示可选项，如果不填，将使用预设置的默认值。{1..9}表示可以选择1到9中的一个值。   
+ * **附加参数** 都以“-”符号开头紧跟字母来进行不同的设置，可以放置在命令行的任意位置，如果该项设置还有参数的话后面继续用“-”间隔。   
+ […] 框起来的部分表示可选项，如果不填，将使用预设置的默认值。   
+ {1..9}表示可以选择1到9中的一个值。   
    
  * **-o 选项**：diff时的优化级别和策略，分别对应不同的补丁大小和patch速度；一般来说数值越大补丁包越小，而patch可能越慢。
    * **-o-0**	patch最快，但补丁包较大，和hdiffz生成的补丁包几乎一样大；patch时资源占用少，不需要临时解压空间。
@@ -106,14 +110,13 @@ options:
 * **-c 选项**：设置补丁数据使用的压缩算法；diff默认输出的补丁文件是不压缩的，可以在创建补丁时用该选项指定一个支持的压缩插件：
    * **-c-zlib**[-{1..9}]		使用zlib算法压缩，默认压缩级别9。
    * **-c-bzip2**[-{1..9}] (或-bz2)	使用bzip2算法压缩，默认压缩级别9。
-   * **-c-lzma**[-{0..9}[-dictSize]]	使用lzma算法压缩，默认压缩级别7，支持设置解压时字典大小，默认16MB（该值越大一般压缩的越小）；该插件支持2路并行压缩；（推荐使用lzma2）。
+   * **-c-lzma**[-{0..9}[-dictSize]]	使用lzma算法压缩，默认压缩级别7，支持设置解压时字典大小，默认16MB（该值越大一般压缩的越小）；该插件支持2路并行压缩（推荐使用lzma2）。
    * **-c-lzma2**[-{0..9}[-dictSize]]	使用lzma2算法压缩，默认压缩级别7，支持设置解压时字典大小，默认16MB；该插件支持多线程并行压缩。
-   * **-c-zstd**[-{0..22}[-dictBits]]	使用zstd算法压缩，默认压缩级别20，支持设置解压时字典比特数(10--31)，默认24（即对应字典大小2^24=16MB）。
-
-比如使用lzma2，使用64MB的字典，该算法压缩率高，但解压较慢：
-`$ sf_diff "old.apk" "new.apk" "diff.pat" -o-3 -c-lzma2-9-64m`
-比如使用zstd，使用64MB的字典，该算法压缩率不错，解压非常快：
-`$ sf_diff "old.apk" "new.apk" "diff.pat" -o-2 -c-zstd-22-26`
+   * **-c-zstd**[-{0..22}[-dictBits]]	使用zstd算法压缩，默认压缩级别20，支持设置解压时字典比特数{10..31}，默认24（即对应字典大小2^24=16MB）。   
+比如使用lzma2，使用32MB的字典，该算法压缩率高，但解压较慢：   
+`$ sf_diff "old.apk" "new.apk" "diff.pat" -o-3 -c-lzma2-9-32m`   
+比如使用zstd，使用16MB的字典，该算法压缩率不错，解压非常快：   
+`$ sf_diff "old.apk" "new.apk" "diff.pat" -o-2 -c-zstd-21-24`   
 
 * **-m 选项**：设置匹配最小分数(>=0)，默认值2；少量影响补丁包输出大小；一般输入数据可压缩性越大，这个值就可以设得越大。
 
@@ -123,11 +126,13 @@ options:
 
 * **-step 选项**：设置补丁包patch时的解压缩区步长，默认2MB；少量影响补丁包输出大小；一般这个值越大，输出文件越小。
 
-* **-pre 选项**：设置是否始终让新版本数据处于解压缩状态，默认不(即保持原压缩状态不解压)；一般在diff过程中新旧数据都在解压缩状态进行匹配，当解压状态的部分新数据没有搜寻到匹配数据时，默认就会还原成压缩状态，这样有利于优化patch时的速度，减少需要重新压缩的数据量。 打开的情况下(即始终解压)，一般输出文件会小一些（相当于解压后用更好的压缩算法重新压缩了数据）。 
-推荐用于当旧版本文件为空，并和-o-2和-c-lzma2一起用于新版本的初次下载优化，比如：
-`$ sf_diff "" "new.apk" "recompressed.pat" –o-2 -c-lzma2-9-64m -p-8`
+* **-pre 选项**：设置是否始终让新版本数据处于解压缩状态，默认不(即保持原压缩状态不解压)；一般在diff过程中新旧数据都在解压缩状态进行匹配，当解压状态的部分新数据没有搜寻到匹配数据时，默认就会还原成压缩状态，这样有利于优化patch时的速度，减少需要重新压缩的数据量。 打开的情况下(即始终解压)，一般输出文件会小一些（相当于解压后用更好的压缩算法重新压缩了数据）。    
+推荐用于当旧版本文件为空，并和-o-2和-c-lzma2一起用于新版本的初次下载优化，比如：   
+`$ sf_diff "" "new.apk" "recompressed.pat" -pre –o-2 -c-lzma2-9-32m -p-8`   
 
-* **-lp 选项**：设置解压出临时数据的最大内存占用；该值可以控制patch时的最大内存占用值。当设置-o-2或-o-3时默认值为最大2文件解压缩后数据大小的和；而使用-o-1时一般不用设置；如果patch时使用临时文件来存放临时解压出的old数据，那-lp的设置值无意义；设置过小，可能会使输出的补丁包变大。 
+* **-lp 选项**：设置解压出临时数据的最大内存占用；该值可以控制patch时的最大内存占用值。当设置-o-2或-o-3时默认值为最大2文件解压缩后数据大小的和；而使用-o-1时一般不用设置(推荐-lp-512k)；如果patch时使用临时文件来存放临时解压出的old数据，那-lp的设置值无意义；设置过小，可能会使输出的补丁包变大。    
+为了控制patch时的最大内存，推荐始终设置该值，比如：   
+`$ sf_diff "old.apk" "new.apk" "diff.pat" -lp-16m -o-2 -c-zstd-21-24`   
 
 * **-lo 选项**：设置旧版本数据的最大解压临时空间大小，默认不限制；这部分临时数据在patch的时候可以选择放置到临时文件中或者放置在内存中（而-lp的设置值可以控制其使用内存时的最大内存占用）；设置过小，可能会使输出的补丁包变大。 
 
@@ -141,10 +146,13 @@ options:
 
 * **-v 选项**： 输出当前程序的版本等信息。
 
-推荐做法：如果为了较小的补丁,并且最快的打补丁速度，那可以使用 -o-1 -c-zstd-22-25类似的参数；如果想要更小的补丁，并且有较快的速度，建议使用 -o-2，并设置-lp-32m等来控制patch时的最大内存占用。 当patch已经很快时可以使用-c-lzma2来得到更小一些的补丁包（牺牲部分patch速度）。
-
 # PC上打补丁的工具sf_patch
-patch端一般在安卓手机上运行（库提供了.so库文件和java代码），这里提供了一个在PC上测试执行的命令行工具；直接在PC上运行sf_patch命令会得到如下所示的帮助信息输出： 
+patch端一般在安卓手机上运行，提供了NDK编译出的.so库文件和其对应java代码（即SDK，使用需要获得商业授权）。   
+*安卓库 libsfpatch.so (v1.0.16) 文件大小参考：   
+ arm64-v8a 静态库 298KB (zip压缩后 144KB), 动态库 230KB (zip压缩后 119KB);   
+ armeabi-v7a 静态库 217KB (zip压缩后 135KB), 动态库 189KB (zip压缩后 122KB).*   
+   
+直接在PC上运行sf_patch命令会得到如下所示的帮助信息输出： 
 ```
 usage: sf_patch oldArchiveFile diffFile outNewArchiveFile [maxUncompressMemory tempUncompressFileName] [-lp] [-v] [-p-parallelThreadNumber]
   if oldArchiveFile is empty input parameter ""
@@ -165,29 +173,62 @@ options:
   -p-parallelThreadNumber
     open multi-thread Parallel patch mode, DEFAULT closed;
     if parallelThreadNumber>=2 then mode opened!
-  -t  test other patcher, diffFile created by hdiffz,bsdiff,
-      or created by sf_diff -HD,sf_diff -SD,sf_diff -BSD;
+  -t  test other patcher, diffFile created by $hdiffz $hdiffz -SD $bsdiff,
+      or created by $sf_diff -HD $sf_diff -SD $sf_diff -BSD
   -v  output Version info.
 ```
 
-* **打补丁**：可以使用命令行工具sf_patch命令在PC上测试补丁包，将旧版本apk文件应用相应的补丁文件升级到新版本的apk文件的命令如下：
-`$ sf_patch "old.apk" "diff.pat" "out_new.apk"`
-如果没有旧版本，下载的只是新版本解压后的重新压缩包，那命令为：
-`$ sf_patch "" "recompressed.pat" "out_new.apk"`
-	生成成功，返回0，其他任何值都是发现了错误。
+* **打补丁**：可以使用命令行工具sf_patch命令在PC上测试补丁包，将旧版本apk文件应用相应的补丁文件升级到新版本的apk文件的命令如下：  
+`$ sf_patch "old.apk" "diff.pat" "out_new.apk"`   
+如果没有旧版本，下载的只是新版本解压后的重新压缩包，那命令为：   
+`$ sf_patch "" "recompressed.pat" "out_new.apk"`   
+ 生成成功，返回0，其他任何值都是发现了错误。   
 
-* 临时**解压空间**：设置maxUncompressMemory和tempUncompressFileName参数可以用来控制patch过程中需要解压的临时数据的存储方式； 如果maxUncompressMemory大于等于临时解压空间大小，那所有解压数据完整存放在内存中，并且patch速度最快；如果maxUncompressMemory小于临时解压空间大小，但大于等于解压数据的最大内存占用限制值，则临时解压数据在patch时依次解压到内存中使用，patch速度稍慢；如果maxUncompressMemory小于解压数据的最大内存占用限制值，则临时解压数据会全部存放到临时文件中，这是patch速度会慢一些。（参见diff时的-lo选项，可以控制需要解压的数据大小的上限，-lp可以限制解压数据的最大内存占用）
-	比如，启用8个线程，并控制最大解压内存占用不超过32MB，否则使用临时文件来暂存这些数据(程序执行完成后sfpatch.tmp会被删除)：
+* 临时**解压空间**：设置maxUncompressMemory和tempUncompressFileName参数可以用来控制patch过程中需要解压的临时数据的存储方式；   
+如果maxUncompressMemory大于等于临时解压空间大小，那所有解压数据完整存放在内存中，并且多线程时patch速度最快；   
+如果maxUncompressMemory小于临时解压空间大小，但大于等于解压数据的最大内存占用限制值，则临时解压数据在patch时依次解压到内存中使用，patch速度稍慢；   
+如果maxUncompressMemory小于解压数据的最大内存占用限制值，则临时解压数据会全部存放到临时文件中，这时patch速度会慢一些。   
+提示：sf_diff时 -lo选项可以控制需要解压的数据大小的上限，-lp选项可以限制解压数据的最大内存占用   
+比如，启用8个线程，并控制最大解压内存占用不超过32MB，否则使用临时文件来暂存这些数据(程序执行完成后sfpatch.tmp会被删除)：   
 `$ sf_patch "old.apk" "diff.pat" "out_new.apk" 32m "sfpatch.tmp" -p-8`   
-	推荐做法：diff时始终设置合适的-lp限制值，从而控制patch时的最大内存占用，并且不使用临时文件。
+推荐做法：diff时始终设置合适的-lp限制值，从而可以控制patch时的最大内存占用，避免使用临时文件。
 
-* **-lp 选项**： 设置maxUncompressMemory=limitPatchMemSize，从而使用限制内存占用的模式执行patch；limitPatchMemSize是diff时指定的。   
+* **-lp 选项**： 自动设置maxUncompressMemory=limitPatchMemSize，从而使用限制内存占用的模式执行patch；limitPatchMemSize是diff时指定的。   
+**推荐用法**：diff时设置好-lp的值，patch时自动限制内存占用    
+`$ sf_patch "old.apk" "diff.pat" "out_new.apk" -lp -p-8`   
 
-* **-ct 选项**： 设置是否使用继续patch模式，默认不；该模式支持从上次程序意外结束时的outNewArchiveFile最后写入位置继续patch,从而得到更好的patch体验。继续patch时不会检查已有的outNewArchiveFile数据是否正确；继续时能够跳过已经输出的outNewArchiveFile数据的压缩过程，并跳过部分oldNewArchiveFile数据的解压过程，但不能跳过对diffFile文件的解压和解析等过程。
+* **-ct 选项**： 设置是否使用继续patch模式，默认不；该模式支持从上次程序意外结束时的outNewArchiveFile最后写入位置继续patch,从而得到更好的patch体验。   
+继续patch时不会检查已有的outNewArchiveFile数据是否正确；继续时能够跳过已经输出的outNewArchiveFile数据的压缩过程，并跳过部分oldNewArchiveFile数据的解压过程，但不能跳过对diffFile文件的解压和解析等过程。
 
-* **-p 选项**：设置patch时使用的最大线程数，一般来说线程数越多速度越快。很多时候该参数对-o-0生成的补丁加速作用较小，对-o-1生成的补丁有不错的并行加速效果（可以不用给太多的线程数）；而对-o-2和-o-3生成的补丁并行加速效果会非常好。并行调度代码能很好的支持big.LITTLE大小核架构的CPU。
+* **-p 选项**：设置patch时使用的最大线程数，一般来说线程数越多速度越快。很多时候该参数对-o-0生成的补丁加速作用较小，对-o-1生成的补丁有不错的并行加速效果（可以不用给太多的线程数）。   
+而对-o-2和-o-3生成的补丁并行加速效果会非常好。并行调度代码能很好的支持big.LITTLE大小核架构的CPU。
 
 * **-t 选项**： 测试其他兼容格式的补丁合成，支持**hdiffz**、**bsdiff**创建的补丁包文件，或者用sf_diff -HD、sf_diff -SD、sf_diff -BSD创建的兼容补丁包文件。   
 对于bsdiff的补丁，和**bspatch**不同，本程序使用一个较小的固定内存大小O(1)的模式执行patch过程。
 
 * **-v 选项**： 输出当前程序的版本等信息。 
+
+# 推荐做法：
+* 获得较小的优化补丁，并有优化的patch速度：   
+`$ sf_diff "old.apk" "new.apk" "diff.pat" -o-1 -c-zstd-21-23 -m-1 -step-3m -lp-512k -block -cache`   
+（patch时内存占用估算：8m+3m+0.5m，最大约20MB左右。 diff时的-p并行线程数量根据机器情况设置。）   
+patch端建议参数：`$ sf_patch "old.apk" "diff.pat" "out_new.apk" -lp -p-6`   
+
+* 如果想要更小的补丁，并且保持最差patch速度勉强可接受：   
+`$ sf_diff "old.apk" "new.apk" "diff.pat" -o-2 -c-zstd-21-22 -step-2m -lp-8m -block -cache`   
+（patch时内存占用估算：4m+2m+8m，最大约30MB左右。 压缩算法也可以考虑lzma2。）   
+patch端建议参数：`$ sf_patch "old.apk" "diff.pat" "out_new.apk" -lp -p-12`   
+
+* 如果想要最小的补丁，并且不太在意最差patch速度（比如后台空闲自动更新的场景）：   
+`$ sf_diff "old.apk" "new.apk" "diff.pat" -o-3 -c-lzma2-9-4m -step-2m -lp-8m -block -cache`   
+（patch时内存占用估算：4m+2m+8m，最大约30MB左右。）   
+patch端建议参数：`$ sf_patch "old.apk" "diff.pat" "out_new.apk" -lp -p-14`   
+
+* 对新版本的初次下载大小优化，并且保持最差patch速度勉强可接受：   
+`$ sf_diff "" "new.apk" "recompressed.pat" -pre –o-2 -c-lzma2-9-16m`   
+（patch时内存占用估算：0m+0m+16m，最大约30MB左右。）   
+patch端建议参数：`$ sf_patch "" "recompressed.pat" "out_new.apk" -p-10`   
+
+* SDK高级用法：patch线程数可以根据回调时得到的任务量和当前设备的CPU核心数和空闲情况动态调整。 当客户端patch回调时得知完整临时**解压空间**需要的内存远小于当前设备的空闲内存时，不限制patch内存占用；这样patch速度会更快一点。   
+   
+   
