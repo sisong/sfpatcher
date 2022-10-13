@@ -171,8 +171,8 @@ options:
   -ct
       set is run patch with continue mode, DEFAULT false.
   -p-parallelThreadNumber
-    open multi-thread Parallel patch mode, DEFAULT closed;
-    if parallelThreadNumber>=2 then mode opened!
+    DEFAULT -p-8!  if parallelThreadNumber>1 then
+    open multi-thread Parallel patch mode!
   -t  test other patcher, diffFile created by $hdiffz $hdiffz -SD $bsdiff,
       or created by $sf_diff -HD $sf_diff -SD $sf_diff -BSD
   -v  output Version info.

@@ -78,7 +78,8 @@
 测试项主要包括：diff速度、diff内存占用、补丁大小(用压缩率代替，压缩后补丁大小/新版本apk大小)、patch速度、patch内存占用（后面这3项指标可能更重要一些）   
 
 # 测试用例
-收集了32组测试用例，这些用例来源于一些较长时间收集到的常见应用和游戏。（限于有限的用例和收集偏差，数据和实际情况可能略有差异）   
+收集了32组测试用例，这些用例来源于一些较长时间收集到的常见应用和游戏。   
+限于有限的用例和收集偏差，数据和实际情况可能略有差异；因为bsdiff内存占用过大和archive-patcher 512M大小的限制放弃了大游戏用例。   
 旧版本apk平均大小114.7MB，新版本apk平均大小117.1MB   
 
 | 编号|app|新apk <-- 旧apk|新apk大小|旧apk大小|
@@ -130,7 +131,8 @@ sfpatcher补充测试了用ApkNormalized(ApkDiffPatch方案)处理过的apk文�
    
 另外在一部安卓手机(CPU:Kirin980)上对sfpatcher进行了一些patch时间测试，补充到了最后一列。   
 
-# 测试汇总   
+# 测试结果   
+其中：平均压缩率=(补丁大小/新apk大小)的平均值； 单次测试的内存统计值为峰值内存；
 
 |diff方案|平均压缩率|平均内存|平均速度|patch|平均内存|最大内存|平均速度|Kirin980速度|
 |:----|----:|----:|----:|----|----:|----:|----:|----:|
@@ -178,7 +180,69 @@ sfpatcher补充测试了用ApkNormalized(ApkDiffPatch方案)处理过的apk文�
 |sfpatcher-3pre zstd|83.2%|545MB|1.8MB/s|memMT|28MB|33MB|80MB/s|39MB/s|
 |sfpatcher-3pre lzma2|77.9%|402MB|1.6MB/s|mem|22MB|25MB|14MB/s|9MB/s|
 |**sfpatcher-3pre lzma2**|**77.9%**|402MB|1.6MB/s|memMT|**27MB**|**31MB**|**45MB/s**|**24MB/s**|
+   
 
+# 游戏测试用例
+最近收集了32组游戏测试用例，这些apk下载于小米应用商店、TapTap商店、谷歌Play商店，按照下载量大和最近进行过更新为标准进行收集。   
+对比测试了xdelta、sfpatcher； 因为有大游戏所以放弃了无法顺利完成测试的bsdiff和archive-patcher。   
+旧版本apk平均大小1010.3MB，新版本apk平均大小1017.5MB   
+
+| 编号|app|新apk <-- 旧apk|新apk大小|旧apk大小|
+|----:|:---:|:----|----:|----:|
+|1|<img src="gimg/com.blizzard.wtcg.hearthstone.png" width="32">|com.blizzard.wtcg.hearthstone_24.4.150659.apk <-- 24.2.148211.apk|119192491|118798993|
+|2|<img src="gimg/com.ea.simcitymobile.mi.png" width="32">|com.ea.simcitymobile.mi_0.68.21338.22253.apk <-- 0.67.21338.22186.apk|262485392|256687957|
+|3|<img src="gimg/com.happyelements.AndroidAnimal.png" width="32">|com.happyelements.AndroidAnimal_1.114.apk <-- 1.113.apk|246916191|276046501|
+|4|<img src="gimg/com.hermes.h1game.mi.png" width="32">|com.hermes.h1game.mi_1.10.1.apk <-- 1.9.1.apk|1764369655|1742356334|
+|5|<img src="gimg/com.imangi.templerun2.png" width="32">|com.imangi.templerun2_6.5.1.apk <-- 6.5.0.apk|142692127|141981473|
+|6|<img src="gimg/com.kiloo.subwaysurf.png" width="32">|com.kiloo.subwaysurf_3.36.1.apk <-- 3.36.0.apk|172657047|172348585|
+|7|<img src="gimg/com.king.candycrushsaga.png" width="32">|com.king.candycrushsaga_1.237.0.3.apk <-- 1.236.0.3.apk|89619604|89410785|
+|8|<img src="gimg/com.knight.union.mi.png" width="32">|com.knight.union.mi_4.3.1.apk <-- 4.3.0.apk|281337183|279734645|
+|9|<img src="gimg/com.kurogame.haru.hero.png" width="32">|com.kurogame.haru.hero_1.32.0.apk <-- 1.31.2.apk|2076982449|2071240294|
+|10|<img src="gimg/com.miHoYo.enterprise.NGHSoD.png" width="32">|com.miHoYo.enterprise.NGHSoD_6.1.0.apk <-- 6.0.0.apk|633463833|617956855|
+|11|<img src="gimg/com.miHoYo.Yuanshen.png" width="32">|com.miHoYo.Yuanshen_3.1.0.apk <-- 3.0.0.apk|292959792|281028246|
+|12|<img src="gimg/com.miniclip.eightballpool.png" width="32">|com.miniclip.eightballpool_5.10.2.apk <-- 5.10.0.apk|68794783|69208479|
+|13|<img src="gimg/com.minitech.miniworld.TMobile.mi.png" width="32">|com.minitech.miniworld.TMobile.mi_1.19.0.apk <-- 1.18.1.apk|615403134|606383668|
+|14|<img src="gimg/com.netease.dwrg.mi.png" width="32">|com.netease.dwrg.mi_1.5.69.apk <-- 1.5.67.apk|2087354104|2083304114|
+|15|<img src="gimg/com.netease.g104.mi.png" width="32">|com.netease.g104.mi_3.18.1.apk <-- 3.17.5.apk|1900704615|1853407883|
+|16|<img src="gimg/com.netease.g67.mi.png" width="32">|com.netease.g67.mi_1.6.0.apk <-- 1.5.4.apk|2021330101|2016955181|
+|17|<img src="gimg/com.netease.hyxd.mi.png" width="32">|com.netease.hyxd.mi_1.283.479407.apk <-- 1.282.479407.apk|2099155328|2107908315|
+|18|<img src="gimg/com.netease.mc.mi.png" width="32">|com.netease.mc.mi_2.3.15.apk <-- 2.3.5.apk|986369238|982878980|
+|19|<img src="gimg/com.netease.stzb.mi.png" width="32">|com.netease.stzb.mi_5.1.1.apk <-- 4.4.8.apk|2035866423|2114161454|
+|20|<img src="gimg/com.nianticlabs.pokemongo.png" width="32">|com.nianticlabs.pokemongo_0.251.0.apk <-- 0.249.2.apk|51919509|51538569|
+|21|<img src="gimg/com.pandadastudio.ninjamustdie3.mi.png" width="32">|com.pandadastudio.ninjamustdie3.mi_2.0.15.apk <-- 2.0.5.apk|1494616373|1486154585|
+|22|<img src="gimg/com.popcap.pvz2cthdxm.png" width="32">|com.popcap.pvz2cthdxm_2.9.6.apk <-- 2.9.4.apk|942247868|916279479|
+|23|<img src="gimg/com.sy.dldlhsdj.mi.png" width="32">|com.sy.dldlhsdj.mi_2.8.4.apk <-- 2.8.1.apk|1748742033|1658132570|
+|24|<img src="gimg/com.tencent.ig.png" width="32">|com.tencent.ig_2.2.0.apk <-- 2.1.0.apk|1123848712|1161724820|
+|25|<img src="gimg/com.tencent.lolm.png" width="32">|com.tencent.lolm_3.4.0.apk <-- 3.3.0.apk|1956378264|1808791425|
+|26|<img src="gimg/com.tencent.mf.uam.png" width="32">|com.tencent.mf.uam_1.0.128.apk <-- 1.0.118.apk|1934202996|2050880984|
+|27|<img src="gimg/com.tencent.tmgp.cf.png" width="32">|com.tencent.tmgp.cf_1.0.280.apk <-- 1.0.260.apk|2089132074|1998168460|
+|28|<img src="gimg/com.tencent.tmgp.sgame.png" width="32">|com.tencent.tmgp.sgame_3.81.1.8.apk <-- 3.74.1.6.apk|1960032646|1976668388|
+|29|<img src="gimg/com.tencent.tmgp.speedmobile.png" width="32">|com.tencent.tmgp.speedmobile_1.33.0.apk <-- 1.32.0.apk|2122819058|2096029603|
+|30|<img src="gimg/com.ustwo.monumentvalleyzz.png" width="32">|com.ustwo.monumentvalleyzz_2.5.2.apk <-- 2.5.1.apk|159780651|160263061|
+|31|<img src="gimg/com.wepie.snake.new.mi.png" width="32">|com.wepie.snake.new.mi_5.3.2.apk <-- 5.3.0.2.apk|388251536|382250707|
+|32|<img src="gimg/com.youzu.bs.png" width="32">|com.youzu.bs_44.270.apk <-- 44.265.apk|272298484|270552420|
+   
+
+# 游戏测试结果   
+其中：总和压缩率=补丁总大小/新apk总大小； 单次测试的内存统计值改为峰值私有内存；   
+ **xdelta3 -B**是指增大引用窗口到oldApk文件相同大小进行的测试，其结果仅供参考，因为patch时内存占用也会随之增大。   
+
+|diff方案|总和压缩率|平均压缩率|平均内存|平均速度|patch|平均内存|最大内存|平均速度|最差速度|
+|:----|----:|----:|----:|----:|----|----:|----:|----:|----:|
+|**xdelta3 lzma**|**54.60%**|**47.64%**|423MB|2.0MB/s|mem|**99MB**|**103MB**|**37MB/s**|**11MB/s**|
+|xdelta3 djw|55.67%|48.34%|413MB|3.3MB/s|mem|98MB|102MB|38MB/s|15MB/s|
+|xdelta3 lzma -B |27.35%|31.85%|6184MB|3.5MB/s|mem|1251MB|2090MB|76MB/s|14MB/s|
+|xdelta3 djw -B |27.73%|32.16%|6174MB|5.1MB/s|mem|1249MB|2089MB|77MB/s|20MB/s|
+|sf_diff -0|28.02%|32.57%|3996MB|5.6MB/s|mem|2MB|3MB|383MB/s|141MB/s|
+|sf_diff -0 -lzma2|23.99%|29.81%|3997MB|3.7MB/s|mem|10MB|11MB|186MB/s|62MB/s|
+|sf_diff -0 -zstd|24.28%|30.02%|4033MB|4.3MB/s|mem|11MB|11MB|340MB/s|128MB/s|
+|sf_diff -1 -zstd|21.38%|22.76%|4422MB|3.7MB/s|limit|14MB|19MB|287MB/s|116MB/s|
+|**sf_diff -1 -zstd**|**21.38%**|**22.76%**|4422MB|3.7MB/s|limitMT|**17MB**|**22MB**|**410MB/s**|**144MB/s**|
+|sf_diff -2 -lzma2|20.55%|20.69%|4731MB|3.2MB/s|limit|15MB|20MB|112MB/s|11MB/s|
+|sf_diff -2 -lzma2|20.55%|20.69%|4731MB|3.2MB/s|limitMT|20MB|26MB|208MB/s|37MB/s|
+|sf_diff -3 -lzma2|19.95%|19.71%|5216MB|2.7MB/s|limit|17MB|25MB|49MB/s|6MB/s|
+|sf_diff -3 -lzma2|19.95%|19.71%|5216MB|2.7MB/s|limitMT|23MB|32MB|132MB/s|31MB/s|
+   
 
 # sfpatcher的大规模测试
 收集了Top500中多个app应用(不含游戏)和其多个历史版本，形成了4695个测试用例，进行了diff和patch多种参数测试并分别使用了lzma2压缩和zstd压缩输出补丁。   
@@ -203,7 +267,7 @@ sfpatcher补充测试了用ApkNormalized(ApkDiffPatch方案)处理过的apk文�
 # 节省CDN带宽费用估算(仅供参考)
 单个apk一次升级节省的流量估算：现在用户安卓手机经常使用的应用apk一般都越来越大，而经常使用的游戏平均应该更大，假设按平均100MB算。   
 一般bsdiff或HDiffPatch创建的补丁平均为原apk大小的50%--60%（按51%计算）；sfpatcher按-o-1算，创建的补丁为平均原apk大小的33%。   
-那sfpatcher相比bsdiff或HDiffPatch方案单次继续节省 100x(51%-33%) = 18MB   
+那sfpatcher相比bsdiff或HDiffPatch方案单次继续节省 100x(51%-33%) = 18MB  (游戏apk平均节省会成倍数增多)  
 假设apk商店每天有1亿次apk升级，按峰值带宽计费，假设单价每天0.48元/Mbps; 而按经验，峰值带宽一般是平均带宽的2倍：   
 每月节省费用：100000000x(18x1024x1024x8/1000/1000)/(3600x24)x2x0.48*30 = 503.3万元   
 如果按流量计费，假设单价0.11元/GB：   
