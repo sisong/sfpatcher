@@ -84,38 +84,38 @@
 
 | 编号|app|新apk <-- 旧apk|新apk大小|旧apk大小|
 |----:|:---:|:----|----:|----:|
-|1|<img src="img/com.MobileTicket.png" width="32">|12306_5.2.11.apk <-- 12306_5.1.2.apk| 61120025|66209244|
-|2|<img src="img/com.eg.android.AlipayGphone.png" width="32">|alipay10.1.99.apk <-- alipay10.1.95.apk|94178674|90951351|
-|3|<img src="img/com.eg.android.AlipayGphone.png" width="32">|alipay10.2.0.apk <-- alipay10.1.99.apk|95803005|94178674|
-|4|<img src="img/com.baidu.BaiduMap.png" width="32">|baidumaps10.25.0.apk <-- baidumaps10.24.12.apk|95539893|104527191|
-|5|<img src="img/com.baidu.BaiduMap.png" width="32">|baidumaps10.25.5.apk <-- baidumaps10.25.0.apk|95526276|95539893|
-|6|<img src="img/tv.danmaku.bili.png" width="32">|bilibili6.15.0.apk <-- bilibili6.14.0.apk|74783182|72067209|
-|7|<img src="img/com.android.chrome.png" width="32">|chrome-64-0-3282-137.apk <-- chrome-64-0-3282-123.apk|43879588|43879588|
-|8|<img src="img/com.android.chrome.png" width="32">|chrome-65-0-3325-109.apk <-- chrome-64-0-3282-137.apk|43592997|43879588|
-|9|<img src="img/com.sdu.didi.psnger.png" width="32">|didi6.0.2.apk <-- didi6.0.0.apk|100866981|91462767|
-|10|<img src="img/org.mozilla.firefox.png" width="32">|firefox68.10.0.apk <-- firefox68.9.0.apk|43543846|43531470|
-|11|<img src="img/org.mozilla.firefox.png" width="32">|firefox68.10.1.apk <-- firefox68.10.0.apk|43542786|43543846|
-|12|<img src="img/com.google.android.apps.maps.png" width="32">|google-maps-9-71-0.apk <-- google-maps-9-70-0.apk|50568872|51304768|
-|13|<img src="img/com.google.android.apps.maps.png" width="32">|google-maps-9-72-0.apk <-- google-maps-9-71-0.apk|54342938|50568872|
-|14|<img src="img/com.jingdong.app.mall.png" width="32">|jd9.0.0.apk <-- jd8.5.12.apk|96891703|94233891|
-|15|<img src="img/com.jingdong.app.mall.png" width="32">|jd9.0.8.apk <-- jd9.0.0.apk|97329322|96891703|
-|16|<img src="img/com.tencent.tmgp.jnbg2.png" width="32">|jinianbeigu2_1.12.4.apk <-- jinianbeigu2_1.12.3.apk|171611658|159691189|
-|17|<img src="img/com.blizzard.wtcg.hearthstone.cn.png" width="32">|lushichuanshuo19.4.71003.apk <-- lushichuanshuo19.2.69054.apk|93799693|93442621|
-|18|<img src="img/com.sankuai.meituan.png" width="32">|meituan10.9.401.apk <-- meituan10.9.203.apk|88956726|89384406|
-|19|<img src="img/com.netease.mc.png" width="32">|minecraft1.17.30.apk <-- minecraft1.17.20.apk|373025314|370324338|
-|20|<img src="img/com.netease.mc.png" width="32">|minecraft1.18.10.apk <-- minecraft1.17.30.apk|401075178|373025314|
-|21|<img src="img/com.popcap.pvz2cthd.png" width="32">|popcap.pvz2_2.4.84.1010.apk <-- popcap.pvz2_2.4.84.1009.apk|387572492|386842079|
-|22|<img src="img/com.supercell.clashofclans.png" width="32">|supercell.clashofclans13.369.3.apk <-- supercell.clashofclans13.180.18.apk|152896934|149011539|
-|23|<img src="img/com.outfit7.talkingtomgoldrun.png" width="32">|tangmumaopaoku4.8.0.971.apk <-- tangmumaopaoku4.6.0.913.apk|105486308|104732413|
-|24|<img src="img/com.taobao.taobao.png" width="32">|taobao9.8.0.apk <-- taobao9.7.2.apk|178734456|176964070|
-|25|<img src="img/com.taobao.taobao.png" width="32">|taobao9.9.1.apk <-- taobao9.8.0.apk|184437315|178734456|
-|26|<img src="img/com.ss.android.ugc.aweme.png" width="32">|tiktok11.5.0.apk <-- tiktok11.3.0.apk|88544106|87075000|
-|27|<img src="img/com.google.android.apps.translate.png" width="32">|translate6.9.0.apk <-- translate6.8.0.apk|28171978|28795243|
-|28|<img src="img/com.google.android.apps.translate.png" width="32">|translate6.9.1.apk <-- translate6.9.0.apk|31290990|28171978|
-|29|<img src="img/com.tencent.mm.png" width="32">|weixin7.0.15.apk <-- weixin7.0.14.apk|148405483|147695111|
-|30|<img src="img/com.tencent.mm.png" width="32">|weixin7.0.16.apk <-- weixin7.0.15.apk|158906413|148405483|
-|31|<img src="img/cn.wps.moffice_eng.png" width="32">|wps12.5.2.apk <-- wps12.5.1.apk|51293286|51136905|
-|32|<img src="img/com.tanwan.yscqlyzf.png" width="32">|yuanshichuanqi1.3.608.apk <-- yuanshichuanqi1.3.607.apk|192578139|192577253|
+|1|<img src="img/com.MobileTicket.png" width="36">|12306_5.2.11.apk <-- 12306_5.1.2.apk| 61120025|66209244|
+|2|<img src="img/com.eg.android.AlipayGphone.png" width="36">|alipay10.1.99.apk <-- alipay10.1.95.apk|94178674|90951351|
+|3|<img src="img/com.eg.android.AlipayGphone.png" width="36">|alipay10.2.0.apk <-- alipay10.1.99.apk|95803005|94178674|
+|4|<img src="img/com.baidu.BaiduMap.png" width="36">|baidumaps10.25.0.apk <-- baidumaps10.24.12.apk|95539893|104527191|
+|5|<img src="img/com.baidu.BaiduMap.png" width="36">|baidumaps10.25.5.apk <-- baidumaps10.25.0.apk|95526276|95539893|
+|6|<img src="img/tv.danmaku.bili.png" width="36">|bilibili6.15.0.apk <-- bilibili6.14.0.apk|74783182|72067209|
+|7|<img src="img/com.android.chrome.png" width="36">|chrome-64-0-3282-137.apk <-- chrome-64-0-3282-123.apk|43879588|43879588|
+|8|<img src="img/com.android.chrome.png" width="36">|chrome-65-0-3325-109.apk <-- chrome-64-0-3282-137.apk|43592997|43879588|
+|9|<img src="img/com.sdu.didi.psnger.png" width="36">|didi6.0.2.apk <-- didi6.0.0.apk|100866981|91462767|
+|10|<img src="img/org.mozilla.firefox.png" width="36">|firefox68.10.0.apk <-- firefox68.9.0.apk|43543846|43531470|
+|11|<img src="img/org.mozilla.firefox.png" width="36">|firefox68.10.1.apk <-- firefox68.10.0.apk|43542786|43543846|
+|12|<img src="img/com.google.android.apps.maps.png" width="36">|google-maps-9-71-0.apk <-- google-maps-9-70-0.apk|50568872|51304768|
+|13|<img src="img/com.google.android.apps.maps.png" width="36">|google-maps-9-72-0.apk <-- google-maps-9-71-0.apk|54342938|50568872|
+|14|<img src="img/com.jingdong.app.mall.png" width="36">|jd9.0.0.apk <-- jd8.5.12.apk|96891703|94233891|
+|15|<img src="img/com.jingdong.app.mall.png" width="36">|jd9.0.8.apk <-- jd9.0.0.apk|97329322|96891703|
+|16|<img src="img/com.tencent.tmgp.jnbg2.png" width="36">|jinianbeigu2_1.12.4.apk <-- jinianbeigu2_1.12.3.apk|171611658|159691189|
+|17|<img src="img/com.blizzard.wtcg.hearthstone.cn.png" width="36">|lushichuanshuo19.4.71003.apk <-- lushichuanshuo19.2.69054.apk|93799693|93442621|
+|18|<img src="img/com.sankuai.meituan.png" width="36">|meituan10.9.401.apk <-- meituan10.9.203.apk|88956726|89384406|
+|19|<img src="img/com.netease.mc.png" width="36">|minecraft1.17.30.apk <-- minecraft1.17.20.apk|373025314|370324338|
+|20|<img src="img/com.netease.mc.png" width="36">|minecraft1.18.10.apk <-- minecraft1.17.30.apk|401075178|373025314|
+|21|<img src="img/com.popcap.pvz2cthd.png" width="36">|popcap.pvz2_2.4.84.1010.apk <-- popcap.pvz2_2.4.84.1009.apk|387572492|386842079|
+|22|<img src="img/com.supercell.clashofclans.png" width="36">|supercell.clashofclans13.369.3.apk <-- supercell.clashofclans13.180.18.apk|152896934|149011539|
+|23|<img src="img/com.outfit7.talkingtomgoldrun.png" width="36">|tangmumaopaoku4.8.0.971.apk <-- tangmumaopaoku4.6.0.913.apk|105486308|104732413|
+|24|<img src="img/com.taobao.taobao.png" width="36">|taobao9.8.0.apk <-- taobao9.7.2.apk|178734456|176964070|
+|25|<img src="img/com.taobao.taobao.png" width="36">|taobao9.9.1.apk <-- taobao9.8.0.apk|184437315|178734456|
+|26|<img src="img/com.ss.android.ugc.aweme.png" width="36">|tiktok11.5.0.apk <-- tiktok11.3.0.apk|88544106|87075000|
+|27|<img src="img/com.google.android.apps.translate.png" width="36">|translate6.9.0.apk <-- translate6.8.0.apk|28171978|28795243|
+|28|<img src="img/com.google.android.apps.translate.png" width="36">|translate6.9.1.apk <-- translate6.9.0.apk|31290990|28171978|
+|29|<img src="img/com.tencent.mm.png" width="36">|weixin7.0.15.apk <-- weixin7.0.14.apk|148405483|147695111|
+|30|<img src="img/com.tencent.mm.png" width="36">|weixin7.0.16.apk <-- weixin7.0.15.apk|158906413|148405483|
+|31|<img src="img/cn.wps.moffice_eng.png" width="36">|wps12.5.2.apk <-- wps12.5.1.apk|51293286|51136905|
+|32|<img src="img/com.tanwan.yscqlyzf.png" width="36">|yuanshichuanqi1.3.608.apk <-- yuanshichuanqi1.3.607.apk|192578139|192577253|
 
 # 测试条件
 在一台笔记本PC上对比测试，CPU Ryzen 5800H，Windows11, SSD硬盘   
@@ -136,50 +136,50 @@ sfpatcher补充测试了用ApkNormalized(ApkDiffPatch方案)处理过的apk文�
 
 |diff方案|平均压缩率|平均内存|平均速度|patch|平均内存|最大内存|平均速度|Kirin980速度|
 |:----|----:|----:|----:|----|----:|----:|----:|----:|
-|**xdelta3 lzma**|**59.9%**|**228MB**|**2.9MB/s**|mem|**100MB**|**100MB**|**159MB/s**|
-|**bsdiff bzip2**|**59.8%**|**1035MB**|**1.0MB/s**|mem|**243MB**|**751MB**|**42MB/s**|
-|hdiffz-m-1 -BSD|59.5%|523MB|5.4MB/s|mem|13MB|14MB|44MB/s|
-|hdiffz-m-1|59.9%|523MB|7.5MB/s|mem|4MB|5MB|780MB/s|268MB/s|
-|**hdiffz-m-1 zstd**|**58.7%**|**612MB**|**5.0MB/s**|mem|**13MB**|**14MB**|**680MB/s**|**265MB/s**|
-|hdiffz-m-1 lzma2|58.7%|523MB|3.7MB/s|mem|12MB|13MB|285MB/s|
-|hdiffz-s-16|60.5%|133MB|31.8MB/s|mem|3MB|4MB|806MB/s|
-|hdiffz-s-16 zstd|59.3%|136MB|9.7MB/s|mem|12MB|12MB|763MB/s|
-|**archive-patcher**|28.5%|**1740MB**|**0.8MB/s**|tmpf|**64MB**|**100MB**|**15MB/s**|
-|ApkDiffPatch|20.5%|982MB|2.0MB/s|mem|138MB|386MB|21MB/s|
-|ApkDiffPatch|20.5%|982MB|2.0MB/s|memMT|211MB|461MB|47MB/s|
-|ApkDiffPatch|20.5%|982MB|2.0MB/s|tmpf|17MB|22MB|19MB/s|
-|ApkDiffPatch|20.5%|982MB|2.0MB/s|tmpfMT|84MB|207MB|41MB/s|
-|sfpatcher-3 lzma2 Norm|20.9%|1032MB|2.4MB/s|limit|47MB|57MB|24MB/s|
-|**sfpatcher-3 lzma2 Norm**|**20.9%**|1032MB|2.4MB/s|limitMT|**52MB**|**63MB**|**78MB/s**|
-|sfpatcher-3 lzma2 Norm|20.9%|1032MB|2.4MB/s|memMT|142MB|397MB|95MB/s|
-|sfpatcher-3pre lzma2 Norm|73.6%|601MB|1.6MB/s|mem|38MB|41MB|16MB/s|
-|**sfpatcher-3pre lzma2 Norm**|**73.6%**|601MB|1.6MB/s|memMT|**43MB**|**47MB**|**55MB/s**|
+|**xdelta3 lzma**|**59.9%**|**228M**|**2.9MB/s**|mem|**100M**|**100M**|**159MB/s**|
+|**bsdiff bzip2**|**59.8%**|**1035M**|**1.0MB/s**|mem|**243M**|**751M**|**42MB/s**|
+|hdiffz-m-1 -BSD|59.5%|523M|5.4MB/s|mem|13M|14M|44MB/s|
+|hdiffz-m-1|59.9%|523M|7.5MB/s|mem|4M|5M|780MB/s|268MB/s|
+|**hdiffz-m-1 zstd**|**58.7%**|**612M**|**5.0MB/s**|mem|**13M**|**14M**|**680MB/s**|**265MB/s**|
+|hdiffz-m-1 lzma2|58.7%|523M|3.7MB/s|mem|12M|13M|285MB/s|
+|hdiffz-s-16|60.5%|133M|31.8MB/s|mem|3M|4M|806MB/s|
+|hdiffz-s-16 zstd|59.3%|136M|9.7MB/s|mem|12M|12M|763MB/s|
+|**archive-patcher**|28.5%|**1740M**|**0.8MB/s**|tmpf|**64M**|**100M**|**15MB/s**|
+|ApkDiffPatch|20.5%|982M|2.0MB/s|mem|138M|386M|21MB/s|
+|ApkDiffPatch|20.5%|982M|2.0MB/s|memMT|211M|461M|47MB/s|
+|ApkDiffPatch|20.5%|982M|2.0MB/s|tmpf|17M|22M|19MB/s|
+|ApkDiffPatch|20.5%|982M|2.0MB/s|tmpfMT|84M|207M|41MB/s|
+|sfpatcher-3 lzma2 Norm|20.9%|1032M|2.4MB/s|limit|47M|57M|24MB/s|
+|**sfpatcher-3 lzma2 Norm**|**20.9%**|1032M|2.4MB/s|limitMT|**52M**|**63M**|**78MB/s**|
+|sfpatcher-3 lzma2 Norm|20.9%|1032M|2.4MB/s|memMT|142M|397M|95MB/s|
+|sfpatcher-3pre lzma2 Norm|73.6%|601M|1.6MB/s|mem|38M|41M|16MB/s|
+|**sfpatcher-3pre lzma2 Norm**|**73.6%**|601M|1.6MB/s|memMT|**43M**|**47M**|**55MB/s**|
 ||
-|sfpatcher-0 zstd|58.7%|612MB|4.9MB/s|mem|13MB|14MB|716MB/s|265MB/s|
-|sfpatcher-0 zstd|58.7%|612MB|4.9MB/s|memMT|14MB|15MB|890MB/s|293MB/s|
-|sfpatcher-0 lzma2|58.7%|523MB|3.7MB/s|mem|12MB|13MB|286MB/s|160MB/s|
-|sfpatcher-0 lzma2|58.7%|523MB|3.7MB/s|memMT|13MB|15MB|342MB/s|172MB/s|
-|sfpatcher-1 zstd|31.7%|774MB|2.8MB/s|limit|16MB|20MB|227MB/s|119MB/s|
-|**sfpatcher-1 zstd**|**31.7%**|**774MB**|**2.8MB/s**|limitMT|**19MB**|**22MB**|**394MB/s**|**218MB/s**|
-|sfpatcher-1 lzma2|30.8%|725MB|2.6MB/s|limit|15MB|19MB|116MB/s|65MB/s|
-|sfpatcher-1 lzma2|30.8%|725MB|2.6MB/s|limitMT|18MB|21MB|170MB/s|96MB/s|
-|sfpatcher-2 zstd|28.7%|890MB|2.6MB/s|limit|17MB|24MB|48MB/s|32MB/s|
-|**sfpatcher-2 zstd**|**28.7%**|890MB|2.6MB/s|limitMT|**21MB**|**30MB**|**157MB/s**|**85MB/s**|
-|sfpatcher-2 lzma2|27.5%|859MB|2.5MB/s|limit|16MB|24MB|41MB/s|26MB/s|
-|**sfpatcher-2 lzma2**|**27.5%**|859MB|2.5MB/s|limitMT|**21MB**|**29MB**|**107MB/s**|**59MB/s**|
-|sfpatcher-3 zstd|25.1%|995MB|2.3MB/s|limit|19MB|24MB|21MB/s|14MB/s|
-|sfpatcher-3 zstd|25.1%|995MB|2.3MB/s|limitMT|24MB|30MB|80MB/s|42MB/s|
-|sfpatcher-3 lzma2|23.7%|976MB|2.3MB/s|limit|19MB|24MB|20MB/s|13MB/s|
-|**sfpatcher-3 lzma2**|**23.7%**|976MB|2.3MB/s|limitMT|**24MB**|**29MB**|**66MB/s**|**36MB/s**|
+|sfpatcher-0 zstd|58.7%|612M|4.9MB/s|mem|13M|14M|716MB/s|265MB/s|
+|sfpatcher-0 zstd|58.7%|612M|4.9MB/s|memMT|14M|15M|890MB/s|293MB/s|
+|sfpatcher-0 lzma2|58.7%|523M|3.7MB/s|mem|12M|13M|286MB/s|160MB/s|
+|sfpatcher-0 lzma2|58.7%|523M|3.7MB/s|memMT|13M|15M|342MB/s|172MB/s|
+|sfpatcher-1 zstd|31.7%|774M|2.8MB/s|limit|16M|20M|227MB/s|119MB/s|
+|**sfpatcher-1 zstd**|**31.7%**|**774M**|**2.8MB/s**|limitMT|**19M**|**22M**|**394MB/s**|**218MB/s**|
+|sfpatcher-1 lzma2|30.8%|725M|2.6MB/s|limit|15M|19M|116MB/s|65MB/s|
+|sfpatcher-1 lzma2|30.8%|725M|2.6MB/s|limitMT|18M|21M|170MB/s|96MB/s|
+|sfpatcher-2 zstd|28.7%|890M|2.6MB/s|limit|17M|24M|48MB/s|32MB/s|
+|**sfpatcher-2 zstd**|**28.7%**|890M|2.6MB/s|limitMT|**21M**|**30M**|**157MB/s**|**85MB/s**|
+|sfpatcher-2 lzma2|27.5%|859M|2.5MB/s|limit|16M|24M|41MB/s|26MB/s|
+|**sfpatcher-2 lzma2**|**27.5%**|859M|2.5MB/s|limitMT|**21M**|**29M**|**107MB/s**|**59MB/s**|
+|sfpatcher-3 zstd|25.1%|995M|2.3MB/s|limit|19M|24M|21MB/s|14MB/s|
+|sfpatcher-3 zstd|25.1%|995M|2.3MB/s|limitMT|24M|30M|80MB/s|42MB/s|
+|sfpatcher-3 lzma2|23.7%|976M|2.3MB/s|limit|19M|24M|20MB/s|13MB/s|
+|**sfpatcher-3 lzma2**|**23.7%**|976M|2.3MB/s|limitMT|**24M**|**29M**|**66MB/s**|**36MB/s**|
 ||
-|sfpatcher-2pre zstd|87.6%|517MB|2.4MB/s|mem|22MB|26MB|38MB/s|25MB/s|
-|**sfpatcher-2pre zstd**|**87.6%**|517MB|2.4MB/s|memMT|**26MB**|**33MB**|**174MB/s**|**80MB/s**|
-|sfpatcher-2pre lzma2|82.8%|380MB|1.8MB/s|mem|22MB|25MB|24MB/s|15MB/s|
-|**sfpatcher-2pre lzma2**|**82.8%**|380MB|1.8MB/s|memMT|**25MB**|**31MB**|**55MB/s**|**30MB/s**|
-|sfpatcher-3pre zstd|83.2%|545MB|1.8MB/s|mem|22MB|26MB|18MB/s|12MB/s|
-|sfpatcher-3pre zstd|83.2%|545MB|1.8MB/s|memMT|28MB|33MB|80MB/s|39MB/s|
-|sfpatcher-3pre lzma2|77.9%|402MB|1.6MB/s|mem|22MB|25MB|14MB/s|9MB/s|
-|**sfpatcher-3pre lzma2**|**77.9%**|402MB|1.6MB/s|memMT|**27MB**|**31MB**|**45MB/s**|**24MB/s**|
+|sfpatcher-2pre zstd|87.6%|517M|2.4MB/s|mem|22M|26M|38MB/s|25MB/s|
+|**sfpatcher-2pre zstd**|**87.6%**|517M|2.4MB/s|memMT|**26M**|**33M**|**174MB/s**|**80MB/s**|
+|sfpatcher-2pre lzma2|82.8%|380M|1.8MB/s|mem|22M|25M|24MB/s|15MB/s|
+|**sfpatcher-2pre lzma2**|**82.8%**|380M|1.8MB/s|memMT|**25M**|**31M**|**55MB/s**|**30MB/s**|
+|sfpatcher-3pre zstd|83.2%|545M|1.8MB/s|mem|22M|26M|18MB/s|12MB/s|
+|sfpatcher-3pre zstd|83.2%|545M|1.8MB/s|memMT|28M|33M|80MB/s|39MB/s|
+|sfpatcher-3pre lzma2|77.9%|402M|1.6MB/s|mem|22M|25M|14MB/s|9MB/s|
+|**sfpatcher-3pre lzma2**|**77.9%**|402M|1.6MB/s|memMT|**27M**|**31M**|**45MB/s**|**24MB/s**|
    
 
 # 游戏测试用例
@@ -189,59 +189,59 @@ sfpatcher补充测试了用ApkNormalized(ApkDiffPatch方案)处理过的apk文�
 
 | 编号|app|新apk <-- 旧apk|新apk大小|旧apk大小|
 |----:|:---:|:----|----:|----:|
-|1|<img src="gimg/com.blizzard.wtcg.hearthstone.png" width="32">|com.blizzard.wtcg.hearthstone_24.4.150659.apk <-- 24.2.148211.apk|119192491|118798993|
-|2|<img src="gimg/com.ea.simcitymobile.mi.png" width="32">|com.ea.simcitymobile.mi_0.68.21338.22253.apk <-- 0.67.21338.22186.apk|262485392|256687957|
-|3|<img src="gimg/com.happyelements.AndroidAnimal.png" width="32">|com.happyelements.AndroidAnimal_1.114.apk <-- 1.113.apk|246916191|276046501|
-|4|<img src="gimg/com.hermes.h1game.mi.png" width="32">|com.hermes.h1game.mi_1.10.1.apk <-- 1.9.1.apk|1764369655|1742356334|
-|5|<img src="gimg/com.imangi.templerun2.png" width="32">|com.imangi.templerun2_6.5.1.apk <-- 6.5.0.apk|142692127|141981473|
-|6|<img src="gimg/com.kiloo.subwaysurf.png" width="32">|com.kiloo.subwaysurf_3.36.1.apk <-- 3.36.0.apk|172657047|172348585|
-|7|<img src="gimg/com.king.candycrushsaga.png" width="32">|com.king.candycrushsaga_1.237.0.3.apk <-- 1.236.0.3.apk|89619604|89410785|
-|8|<img src="gimg/com.knight.union.mi.png" width="32">|com.knight.union.mi_4.3.1.apk <-- 4.3.0.apk|281337183|279734645|
-|9|<img src="gimg/com.kurogame.haru.hero.png" width="32">|com.kurogame.haru.hero_1.32.0.apk <-- 1.31.2.apk|2076982449|2071240294|
-|10|<img src="gimg/com.miHoYo.enterprise.NGHSoD.png" width="32">|com.miHoYo.enterprise.NGHSoD_6.1.0.apk <-- 6.0.0.apk|633463833|617956855|
-|11|<img src="gimg/com.miHoYo.Yuanshen.png" width="32">|com.miHoYo.Yuanshen_3.1.0.apk <-- 3.0.0.apk|292959792|281028246|
-|12|<img src="gimg/com.miniclip.eightballpool.png" width="32">|com.miniclip.eightballpool_5.10.2.apk <-- 5.10.0.apk|68794783|69208479|
-|13|<img src="gimg/com.minitech.miniworld.TMobile.mi.png" width="32">|com.minitech.miniworld.TMobile.mi_1.19.0.apk <-- 1.18.1.apk|615403134|606383668|
-|14|<img src="gimg/com.netease.dwrg.mi.png" width="32">|com.netease.dwrg.mi_1.5.69.apk <-- 1.5.67.apk|2087354104|2083304114|
-|15|<img src="gimg/com.netease.g104.mi.png" width="32">|com.netease.g104.mi_3.18.1.apk <-- 3.17.5.apk|1900704615|1853407883|
-|16|<img src="gimg/com.netease.g67.mi.png" width="32">|com.netease.g67.mi_1.6.0.apk <-- 1.5.4.apk|2021330101|2016955181|
-|17|<img src="gimg/com.netease.hyxd.mi.png" width="32">|com.netease.hyxd.mi_1.283.479407.apk <-- 1.282.479407.apk|2099155328|2107908315|
-|18|<img src="gimg/com.netease.mc.mi.png" width="32">|com.netease.mc.mi_2.3.15.apk <-- 2.3.5.apk|986369238|982878980|
-|19|<img src="gimg/com.netease.stzb.mi.png" width="32">|com.netease.stzb.mi_5.1.1.apk <-- 4.4.8.apk|2035866423|2114161454|
-|20|<img src="gimg/com.nianticlabs.pokemongo.png" width="32">|com.nianticlabs.pokemongo_0.251.0.apk <-- 0.249.2.apk|51919509|51538569|
-|21|<img src="gimg/com.pandadastudio.ninjamustdie3.mi.png" width="32">|com.pandadastudio.ninjamustdie3.mi_2.0.15.apk <-- 2.0.5.apk|1494616373|1486154585|
-|22|<img src="gimg/com.popcap.pvz2cthdxm.png" width="32">|com.popcap.pvz2cthdxm_2.9.6.apk <-- 2.9.4.apk|942247868|916279479|
-|23|<img src="gimg/com.sy.dldlhsdj.mi.png" width="32">|com.sy.dldlhsdj.mi_2.8.4.apk <-- 2.8.1.apk|1748742033|1658132570|
-|24|<img src="gimg/com.tencent.ig.png" width="32">|com.tencent.ig_2.2.0.apk <-- 2.1.0.apk|1123848712|1161724820|
-|25|<img src="gimg/com.tencent.lolm.png" width="32">|com.tencent.lolm_3.4.0.apk <-- 3.3.0.apk|1956378264|1808791425|
-|26|<img src="gimg/com.tencent.mf.uam.png" width="32">|com.tencent.mf.uam_1.0.128.apk <-- 1.0.118.apk|1934202996|2050880984|
-|27|<img src="gimg/com.tencent.tmgp.cf.png" width="32">|com.tencent.tmgp.cf_1.0.280.apk <-- 1.0.260.apk|2089132074|1998168460|
-|28|<img src="gimg/com.tencent.tmgp.sgame.png" width="32">|com.tencent.tmgp.sgame_3.81.1.8.apk <-- 3.74.1.6.apk|1960032646|1976668388|
-|29|<img src="gimg/com.tencent.tmgp.speedmobile.png" width="32">|com.tencent.tmgp.speedmobile_1.33.0.apk <-- 1.32.0.apk|2122819058|2096029603|
-|30|<img src="gimg/com.ustwo.monumentvalleyzz.png" width="32">|com.ustwo.monumentvalleyzz_2.5.2.apk <-- 2.5.1.apk|159780651|160263061|
-|31|<img src="gimg/com.wepie.snake.new.mi.png" width="32">|com.wepie.snake.new.mi_5.3.2.apk <-- 5.3.0.2.apk|388251536|382250707|
-|32|<img src="gimg/com.youzu.bs.png" width="32">|com.youzu.bs_44.270.apk <-- 44.265.apk|272298484|270552420|
+|1|<img src="gimg/com.blizzard.wtcg.hearthstone.png" width="36">|com.blizzard.wtcg.hearthstone_24.4.150659.apk <-- 24.2.148211.apk|119192491|118798993|
+|2|<img src="gimg/com.ea.simcitymobile.mi.png" width="36">|com.ea.simcitymobile.mi_0.68.21338.22253.apk <-- 0.67.21338.22186.apk|262485392|256687957|
+|3|<img src="gimg/com.happyelements.AndroidAnimal.png" width="36">|com.happyelements.AndroidAnimal_1.114.apk <-- 1.113.apk|246916191|276046501|
+|4|<img src="gimg/com.hermes.h1game.mi.png" width="36">|com.hermes.h1game.mi_1.10.1.apk <-- 1.9.1.apk|1764369655|1742356334|
+|5|<img src="gimg/com.imangi.templerun2.png" width="36">|com.imangi.templerun2_6.5.1.apk <-- 6.5.0.apk|142692127|141981473|
+|6|<img src="gimg/com.kiloo.subwaysurf.png" width="36">|com.kiloo.subwaysurf_3.36.1.apk <-- 3.36.0.apk|172657047|172348585|
+|7|<img src="gimg/com.king.candycrushsaga.png" width="36">|com.king.candycrushsaga_1.237.0.3.apk <-- 1.236.0.3.apk|89619604|89410785|
+|8|<img src="gimg/com.knight.union.mi.png" width="36">|com.knight.union.mi_4.3.1.apk <-- 4.3.0.apk|281337183|279734645|
+|9|<img src="gimg/com.kurogame.haru.hero.png" width="36">|com.kurogame.haru.hero_1.32.0.apk <-- 1.31.2.apk|2076982449|2071240294|
+|10|<img src="gimg/com.miHoYo.enterprise.NGHSoD.png" width="36">|com.miHoYo.enterprise.NGHSoD_6.1.0.apk <-- 6.0.0.apk|633463833|617956855|
+|11|<img src="gimg/com.miHoYo.Yuanshen.png" width="36">|com.miHoYo.Yuanshen_3.1.0.apk <-- 3.0.0.apk|292959792|281028246|
+|12|<img src="gimg/com.miniclip.eightballpool.png" width="36">|com.miniclip.eightballpool_5.10.2.apk <-- 5.10.0.apk|68794783|69208479|
+|13|<img src="gimg/com.minitech.miniworld.TMobile.mi.png" width="36">|com.minitech.miniworld.TMobile.mi_1.19.0.apk <-- 1.18.1.apk|615403134|606383668|
+|14|<img src="gimg/com.netease.dwrg.mi.png" width="36">|com.netease.dwrg.mi_1.5.69.apk <-- 1.5.67.apk|2087354104|2083304114|
+|15|<img src="gimg/com.netease.g104.mi.png" width="36">|com.netease.g104.mi_3.18.1.apk <-- 3.17.5.apk|1900704615|1853407883|
+|16|<img src="gimg/com.netease.g67.mi.png" width="36">|com.netease.g67.mi_1.6.0.apk <-- 1.5.4.apk|2021330101|2016955181|
+|17|<img src="gimg/com.netease.hyxd.mi.png" width="36">|com.netease.hyxd.mi_1.283.479407.apk <-- 1.282.479407.apk|2099155328|2107908315|
+|18|<img src="gimg/com.netease.mc.mi.png" width="36">|com.netease.mc.mi_2.3.15.apk <-- 2.3.5.apk|986369238|982878980|
+|19|<img src="gimg/com.netease.stzb.mi.png" width="36">|com.netease.stzb.mi_5.1.1.apk <-- 4.4.8.apk|2035866423|2114161454|
+|20|<img src="gimg/com.nianticlabs.pokemongo.png" width="36">|com.nianticlabs.pokemongo_0.251.0.apk <-- 0.249.2.apk|51919509|51538569|
+|21|<img src="gimg/com.pandadastudio.ninjamustdie3.mi.png" width="36">|com.pandadastudio.ninjamustdie3.mi_2.0.15.apk <-- 2.0.5.apk|1494616373|1486154585|
+|22|<img src="gimg/com.popcap.pvz2cthdxm.png" width="36">|com.popcap.pvz2cthdxm_2.9.6.apk <-- 2.9.4.apk|942247868|916279479|
+|23|<img src="gimg/com.sy.dldlhsdj.mi.png" width="36">|com.sy.dldlhsdj.mi_2.8.4.apk <-- 2.8.1.apk|1748742033|1658132570|
+|24|<img src="gimg/com.tencent.ig.png" width="36">|com.tencent.ig_2.2.0.apk <-- 2.1.0.apk|1123848712|1161724820|
+|25|<img src="gimg/com.tencent.lolm.png" width="36">|com.tencent.lolm_3.4.0.apk <-- 3.3.0.apk|1956378264|1808791425|
+|26|<img src="gimg/com.tencent.mf.uam.png" width="36">|com.tencent.mf.uam_1.0.128.apk <-- 1.0.118.apk|1934202996|2050880984|
+|27|<img src="gimg/com.tencent.tmgp.cf.png" width="36">|com.tencent.tmgp.cf_1.0.280.apk <-- 1.0.260.apk|2089132074|1998168460|
+|28|<img src="gimg/com.tencent.tmgp.sgame.png" width="36">|com.tencent.tmgp.sgame_3.81.1.8.apk <-- 3.74.1.6.apk|1960032646|1976668388|
+|29|<img src="gimg/com.tencent.tmgp.speedmobile.png" width="36">|com.tencent.tmgp.speedmobile_1.33.0.apk <-- 1.32.0.apk|2122819058|2096029603|
+|30|<img src="gimg/com.ustwo.monumentvalleyzz.png" width="36">|com.ustwo.monumentvalleyzz_2.5.2.apk <-- 2.5.1.apk|159780651|160263061|
+|31|<img src="gimg/com.wepie.snake.new.mi.png" width="36">|com.wepie.snake.new.mi_5.3.2.apk <-- 5.3.0.2.apk|388251536|382250707|
+|32|<img src="gimg/com.youzu.bs.png" width="36">|com.youzu.bs_44.270.apk <-- 44.265.apk|272298484|270552420|
    
 
 # 游戏测试结果   
-其中：总和压缩率=补丁总大小/新apk总大小； 单次测试的内存统计值改为峰值私有内存；   
+其中：总压缩率=补丁总大小/新apk总大小； 单次测试的内存统计值改为峰值私有内存；   
  **xdelta3 -B**是指增大引用窗口到oldApk文件相同大小进行的测试，其结果仅供参考，因为patch时内存占用也会随之增大。   
 
-|diff方案|总和压缩率|平均压缩率|平均内存|平均速度|patch|平均内存|最大内存|平均速度|最差速度|
+|diff方案|总压缩率|平均压缩率|平均内存|平均速度|patch|平均内存|最大内存|平均速度|最差速度|
 |:----|----:|----:|----:|----:|----|----:|----:|----:|----:|
-|**xdelta3 lzma**|**54.60%**|**47.64%**|423MB|2.0MB/s|mem|**99MB**|**103MB**|**37MB/s**|**11MB/s**|
-|xdelta3 djw|55.67%|48.34%|413MB|3.3MB/s|mem|98MB|102MB|38MB/s|15MB/s|
-|xdelta3 lzma -B |27.35%|31.85%|6184MB|3.5MB/s|mem|1251MB|2090MB|76MB/s|14MB/s|
-|xdelta3 djw -B |27.73%|32.16%|6174MB|5.1MB/s|mem|1249MB|2089MB|77MB/s|20MB/s|
-|sf_diff -0|28.02%|32.57%|3996MB|5.6MB/s|mem|2MB|3MB|383MB/s|141MB/s|
-|sf_diff -0 -lzma2|23.99%|29.81%|3997MB|3.7MB/s|mem|10MB|11MB|186MB/s|62MB/s|
-|sf_diff -0 -zstd|24.28%|30.02%|4033MB|4.3MB/s|mem|11MB|11MB|340MB/s|128MB/s|
-|sf_diff -1 -zstd|21.38%|22.76%|4422MB|3.7MB/s|limit|14MB|19MB|287MB/s|116MB/s|
-|**sf_diff -1 -zstd**|**21.38%**|**22.76%**|4422MB|3.7MB/s|limitMT|**17MB**|**22MB**|**410MB/s**|**144MB/s**|
-|sf_diff -2 -lzma2|20.55%|20.69%|4731MB|3.2MB/s|limit|15MB|20MB|112MB/s|11MB/s|
-|sf_diff -2 -lzma2|20.55%|20.69%|4731MB|3.2MB/s|limitMT|20MB|26MB|208MB/s|37MB/s|
-|sf_diff -3 -lzma2|19.95%|19.71%|5216MB|2.7MB/s|limit|17MB|25MB|49MB/s|6MB/s|
-|sf_diff -3 -lzma2|19.95%|19.71%|5216MB|2.7MB/s|limitMT|23MB|32MB|132MB/s|31MB/s|
+|**xdelta3 lzma**|**54.60%**|**47.64%**|423M|2.0MB/s|mem|**99M**|**103M**|**37MB/s**|**11MB/s**|
+|xdelta3 djw|55.67%|48.34%|413M|3.3MB/s|mem|98M|102M|38MB/s|15MB/s|
+|xdelta3 lzma -B|27.35%|31.85%|6184M|3.5MB/s|mem|1251M|2090M|76MB/s|14MB/s|
+|xdelta3 djw -B|27.73%|32.16%|6174M|5.1MB/s|mem|1249M|2089M|77MB/s|20MB/s|
+|sf_diff-0|28.02%|32.57%|3996M|5.6MB/s|mem|2M|3M|383MB/s|141MB/s|
+|sf_diff-0 lzma2|23.99%|29.81%|3997M|3.7MB/s|mem|10M|11M|186MB/s|62MB/s|
+|sf_diff-0 zstd|24.28%|30.02%|4033M|4.3MB/s|mem|11M|11M|340MB/s|128MB/s|
+|sf_diff-1 zstd|21.38%|22.76%|4422M|3.7MB/s|limit|14M|19M|287MB/s|116MB/s|
+|**sf_diff-1 zstd**|**21.38%**|**22.76%**|4422M|3.7MB/s|limitMT|**17M**|**22M**|**410MB/s**|**144MB/s**|
+|sf_diff-2 lzma2|20.55%|20.69%|4731M|3.2MB/s|limit|15M|20M|112MB/s|11MB/s|
+|sf_diff-2 lzma2|20.55%|20.69%|4731M|3.2MB/s|limitMT|20M|26M|208MB/s|37MB/s|
+|sf_diff-3 lzma2|19.95%|19.71%|5216M|2.7MB/s|limit|17M|25M|49MB/s|6MB/s|
+|sf_diff-3 lzma2|19.95%|19.71%|5216M|2.7MB/s|limitMT|23M|32M|132MB/s|31MB/s|
    
 
 # sfpatcher的大规模测试
