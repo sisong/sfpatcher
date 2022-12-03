@@ -33,8 +33,8 @@ options:
       set outDiffFile Compress type & level, DEFAULT uncompress;
       for resave diffFile,recompress diffFile to outDiffFile by new set;
       support compress type & level:
-       (re. https://github.com/sisong/lzbench/blob/master/lzbench171_sorted.md )
         -c-zlib[-{1..9}]                    DEFAULT level 9
+            support run by multi-thread parallel, fast!
         -c-bzip2[-{1..9}]                   (or -bz2) DEFAULT level 9
         -c-lzma[-{0..9}[-dictSize]]         DEFAULT level 7
             dictSize can like 4096 or 4k or 4m or 128m etc..., DEFAULT 16m
@@ -47,9 +47,11 @@ options:
             dictBits can 10--31, DEFAULT 24.
             support run by multi-thread parallel, fast!
   -m-matchScore
-      matchScore>=0, DEFAULT -m-2, recommended: 0--6 etc...
-  -block
-      set is use fast block match befor slow match, DEFAULT false;
+      matchScore>=0, DEFAULT -m-1, recommended: 0--6 etc...
+  -block-fastMatchBlockSize
+      set block match befor slow byte-by-byte match, DEFAULT -block-4k;
+      if set -block-0, means don't use block match;
+      fastMatchBlockSize>=4, recommended 256,1k,64k,1m etc...
       if newData similar to oldData then diff speed++ & diff memory--,
       but small possibility outDiffFile's size+
   -cache
@@ -118,9 +120,9 @@ options:
 比如使用zstd，使用16MB的字典，该算法压缩率不错，解压非常快：   
 `$ sf_diff "old.apk" "new.apk" "diff.pat" -o-2 -c-zstd-21-24`   
 
-* **-m 选项**：设置匹配最小分数(>=0)，默认值2；少量影响补丁包输出大小；一般输入数据可压缩性越大，这个值就可以设得越大。
+* **-m 选项**：设置匹配最小分数(>=0)，默认值1；少量影响补丁包输出大小；一般输入数据可压缩性越大，这个值就可以设得越大。
 
-* **-block 选项**：设置是否打开块匹配，从而在较慢的匹配之前进行快速匹配，默认不；一般old原始数据和new相同数据越多速度就越快，内存占用也越小，但有较小可能输出略大的补丁文件。
+* **-block 选项**：设置块匹配，在较慢的逐字节匹配之前使用基于块的快速匹配，默认-block-4k；如果设置为-block-0，意思是关闭基于块的提前匹配；块匹配大小fastMatchBlockSize推荐256,1k,64k,1m等; 如果新版本和旧版本相同数据比较多,那diff速度就会比较快,并且减少内存占用，但有很小的可能补丁包会变大。
 
 * **-cache 选项**：设置是否在匹配的时候使用一个大缓存，从而优化匹配的速度，默认不；一般old原始数据和new不相同数据越多速度就越快，该缓存需要占用oldSize相当的内存，并且建立缓存较慢需要花费额外时间。
 
@@ -171,8 +173,8 @@ options:
   -ct
       set is run patch with continue mode, DEFAULT false.
   -p-parallelThreadNumber
-    DEFAULT -p-8!  if parallelThreadNumber>1 then
-    open multi-thread Parallel patch mode!
+      DEFAULT -p-8!  if parallelThreadNumber>1 then
+      open multi-thread Parallel patch mode!
   -t  test other patcher, diffFile created by $hdiffz $hdiffz -SD $bsdiff,
       or created by $sf_diff -HD $sf_diff -SD $sf_diff -BSD
   -v  output Version info.
@@ -210,17 +212,17 @@ options:
 
 # 推荐做法：
 * 获得较小的优化补丁，并有优化的patch速度：   
-`$ sf_diff "old.apk" "new.apk" "diff.pat" -o-1 -c-zstd-21-23 -m-1 -step-3m -lp-512k -block -cache`   
+`$ sf_diff "old.apk" "new.apk" "diff.pat" -o-1 -c-zstd-21-23 -m-1 -step-3m -lp-512k -cache`   
 （patch时内存占用估算：8m+3m+0.5m，最大约20MB左右。 diff时的-p并行线程数量根据机器情况设置。）   
 patch端建议参数：`$ sf_patch "old.apk" "diff.pat" "out_new.apk" -lp -p-6`   
 
 * 如果想要更小的补丁，并且保持最差patch速度勉强可接受：   
-`$ sf_diff "old.apk" "new.apk" "diff.pat" -o-2 -c-zstd-21-22 -step-2m -lp-8m -block -cache`   
+`$ sf_diff "old.apk" "new.apk" "diff.pat" -o-2 -c-zstd-21-22 -step-2m -lp-8m -cache`   
 （patch时内存占用估算：4m+2m+8m，最大约30MB左右。 压缩算法也可以考虑lzma2。）   
 patch端建议参数：`$ sf_patch "old.apk" "diff.pat" "out_new.apk" -lp -p-12`   
 
 * 如果想要最小的补丁，并且不太在意最差patch速度（比如后台空闲自动更新的场景）：   
-`$ sf_diff "old.apk" "new.apk" "diff.pat" -o-3 -c-lzma2-9-4m -step-2m -lp-8m -block -cache`   
+`$ sf_diff "old.apk" "new.apk" "diff.pat" -o-3 -c-lzma2-9-4m -step-2m -lp-8m -cache`   
 （patch时内存占用估算：4m+2m+8m，最大约30MB左右。）   
 patch端建议参数：`$ sf_patch "old.apk" "diff.pat" "out_new.apk" -lp -p-14`   
 
