@@ -13,7 +13,7 @@ options:
     input oldArchiveFile & newArchiveFile can zip,apk,jar,tar,gz... file type;
     oldArchiveFile can empty, and input parameter ""
   -o-{0..3}
-      select optimize direction for patch speed or outDiffFileSize, DEFAULT -o-1;
+      select optimize level for patch speed or outDiffFileSize, DEFAULT -o-1;
       -o-0      run fastest, not need decompress temp buffer!
                 but outDiffFile is biger;
       -o-1      run fast, outDiffFile is small enough!
@@ -78,6 +78,7 @@ options:
       a limit max size of decompress data from newArchiveFile;
       DEFAULT no limit, recommended: -lo-256m, or 64m,128m etc...
       these data will be re-compress when patch.
+      if -o level>1 then level 1 decompress data is not limited by limitNewDecodeSize.
   -p-parallelThreadNumber
       DEFAULT -p-4!  if parallelThreadNumber>1 then
       open multi-thread Parallel mode when compress outDiffFile;
@@ -138,7 +139,7 @@ options:
 
 * **-lo 选项**：设置旧版本数据的最大解压临时空间大小，默认不限制；这部分临时数据在patch的时候可以选择放置到临时文件中或者放置在内存中（而-lp的设置值可以控制其使用内存时的最大内存占用）；设置过小，可能会使输出的补丁包变大。 
 
-* **-ln 选项**：设置新版本数据的最大解压大小，默认不限制；这部分数据在patch的时候需要重新压缩还原；设置过小，可能会使输出的补丁包变大，设置过大可能对patch速度有影响。
+* **-ln 选项**：设置新版本数据的最大解压大小limitNewDecodeSize，默认不限制；这部分数据在patch的时候需要重新压缩还原；设置过小，可能会使输出的补丁包变大，设置过大可能对patch速度有影响。如果-o级别>1时，级别1的解压数据不受limitNewDecodeSize的限制.
 
 * **-p 选项**：设置输出补丁包文件数据时允许的并行压缩线程数。
 
