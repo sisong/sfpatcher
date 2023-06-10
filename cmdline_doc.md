@@ -59,7 +59,7 @@ options:
       if newData not similar to oldData then diff speed++,
       big cache max used O(oldFileSize) memory, and build slow(diff speed--)
   -step-patchStepMemroySize
-      set patch step memory size, DEFAULT -sm-2m, recommended: 64k,512k,8m etc...
+      set patch step memory size, DEFAULT -step-2m, recommended: 64k,512k,8m etc...
   -pre
       set is always decode newArchiveFile (precompress), DEFAULT false;
       if set this option, outDiffFile maybe smaller, but maybe slower when patch;
@@ -131,7 +131,7 @@ options:
 
 * **-pre 选项**：设置是否始终让新版本数据处于解压缩状态，默认不(即保持原压缩状态不解压)；一般在diff过程中新旧数据都在解压缩状态进行匹配，当解压状态的部分新数据没有搜寻到匹配数据时，默认就会还原成压缩状态，这样有利于优化patch时的速度，减少需要重新压缩的数据量。 打开的情况下(即始终解压)，一般输出文件会小一些（相当于解压后用更好的压缩算法重新压缩了数据）。    
 推荐用于当旧版本文件为空，并和-o-2和-c-lzma2一起用于新版本的初次下载优化，比如：   
-`$ sf_diff "" "new.apk" "recompressed.pat" -pre –o-2 -c-lzma2-9-32m -p-8`   
+`$ sf_diff "" "new.apk" "recompressed.pat" -pre -o-2 -c-lzma2-9-32m -p-8`   
 
 * **-lp 选项**：设置解压出临时数据的最大内存占用；该值可以控制patch时的最大内存占用值。当设置-o-2或-o-3时默认值为最大2文件解压缩后数据大小的和；而使用-o-1时一般不用设置(推荐-lp-512k)；如果patch时使用临时文件来存放临时解压出的old数据，那-lp的设置值无意义；设置过小，可能会使输出的补丁包变大。    
 为了控制patch时的最大内存，推荐始终设置该值，比如：   
@@ -228,7 +228,7 @@ patch端建议参数：`$ sf_patch "old.apk" "diff.pat" "out_new.apk" -lp -p-12`
 patch端建议参数：`$ sf_patch "old.apk" "diff.pat" "out_new.apk" -lp -p-14`   
 
 * 对新版本的初次下载大小优化，并且保持最差patch速度勉强可接受：   
-`$ sf_diff "" "new.apk" "recompressed.pat" -pre –o-2 -c-lzma2-9-16m`   
+`$ sf_diff "" "new.apk" "recompressed.pat" -pre -o-2 -c-lzma2-9-16m`   
 （patch时内存占用估算：0m+0m+16m，最大约30MB左右。）   
 patch端建议参数：`$ sf_patch "" "recompressed.pat" "out_new.apk" -p-10`   
 
