@@ -1,5 +1,5 @@
 ﻿# sfpatcher：针对应用商店的apk增量算法
-**v1.0.15 已正式上线**，为亿级手机终端用户提供优化的更新服务，当前最新版本 v1.1.1   
+**v1.0.15 已正式上线**，为亿级手机终端用户提供更新服务，当前最新版本 v1.1.1   
 [**sfpatcher** 命令行工具下载](https://github.com/sisong/sfpatcher/releases)（支持Windows、Linux、MacOS），
 [命令行使用说明](https://github.com/sisong/sfpatcher/blob/master/cmdline_doc.md)   
 需要商业授权(含源代码&培训)，请联系作者： <housisong@hotmail.com>   
@@ -15,8 +15,8 @@
 
 应用商店使用的增量更新算法一般选择使用的是基于字节的 diff 和 patch 算法，包括：[BsDiff ](http://www.daemonology.net/bsdiff)、[xdelta3](https://github.com/jmacd/xdelta)、[HDiffPatch](https://github.com/sisong/HDiffPatch)等。   
  - **BsDiff** 是当前选择使用较多的算法，创建的补丁小，代码量小，容易移植。但diff和patch场景下执行速度都很慢、内存占用巨大，应用于应用商店等场景时需要进行一些修改定制。
- - **xdelta3** 在diff和patch场景下执行速度都很快，输出标准化的补丁格式(vcdiff格式,也有改成gdiff的)，apk补丁大小和BsDiff接近或略大，内存占用中等。该算法在diff处理较大文件的时候（比如几百MB以上，而现在很多游戏apk都接近2GB了），常会输出不正常的巨大补丁，除非使用和文件大小相当的参考内存来diff和patch，而这时patch时内存占用可控的优点就没有了。
- - **HDiffPatch** 是笔者开源的算法，创建的补丁一般比BsDiff略小一些，diff(-s模式)和patch场景下执行速度都很快，内存占用可控并很小。 diff时也支持-m模式，用更大的内存和时间代价(这时也比BsDiff快很多倍)来得到更小一些的补丁包。 HDiffPatch 现在已经被**vivo**、**OPPO**、**小米**、**腾讯**、**华为**、**字节跳动**、**米哈游**等所使用；从为4KB内存、8位CPU的IoT设备创建OTA增量补丁(4KB内存里一边解压一边patch!)，到为上百GB的游戏创建更新补丁，HDiffPatch 算法得到了越来越广泛的应用。
+ - **xdelta3** 在diff和patch场景下执行速度都很快，输出标准化的补丁格式(vcdiff格式,也有改成gdiff的)，apk补丁大小和BsDiff接近或略大，内存占用中等。该算法在diff处理较大文件的时候（比如几百MB以上），常会输出不正常的巨大补丁，除非使用和文件大小相当的参考内存来diff和patch，而这时patch时内存占用可控的优点就没有了。
+ - **HDiffPatch** 是作者开源的算法，创建的补丁一般比BsDiff略小一些，diff(-s模式)和patch场景下执行速度都很快，内存占用可控并很小。 diff时也支持-m模式，用更大的内存和时间代价(这时也比BsDiff快很多倍)来得到更小一些的补丁包。 HDiffPatch 现在已经被**vivo**、**OPPO**、**小米**、**腾讯**、**华为**、**字节跳动**、**米哈游**等所使用；从为4KB RAM内存、8位CPU的MCU设备创建OTA增量补丁(4KB内存里一边解压一边patch!)，到为上百GB的游戏创建更新补丁，HDiffPatch 算法得到了越来越广泛的应用。
 ## 针对apk的diff&patch算法
 现在提到的增量更新实现方案都只是把apk单纯的看作文件数据直接用算法进行diff&patch，而没有考虑apk包本身是一个zip压缩包的事实。这种简单使用方式可以概括为公式：
 ```c
@@ -33,23 +33,23 @@
 公式里面的diff和patch函数很好办，选择上面提到的一种基于字节的diff&patch算法就行；decompress函数的实现也较简单，就是zip包的解压缩算法；recompress函数的实现比较麻烦一些，需要保证精确的原样还原出newApk（避免破坏签名和运行等）。   
 而 [archive-patcher](https://github.com/google/archive-patcher) 和  [ApkDiffPatch](https://github.com/sisong/ApkDiffPatch) 正是这种思路的实现方案，也包括本文章要介绍的 [sfpatcher](https://github.com/sisong/sfpatcher) 方案都基于这个思路。   
  - **archive-patcher** 谷歌开源的一个针对apk文件的diff&patch实现，在谷歌play商店中使用。内部使用了BsDiff算法作为基础，主要用java语言开发，针对解压状态总数据量小于512MB的并且使用了zlib的deflate压缩算法创建的apk文件，执行优化的补丁算法。 该方案在patch时比较慢，特别是部分略大的apk文件使用了较高的压缩级别时，这时重新压缩出新版本apk会慢的让用户无法接受，所以该优化方案一般用在可以后台更新的场景下。
- - **ApkDiffPatch** 是笔者开源的算法，为给自己团队开发的apk更新来开发的方案，创建的补丁平均比 archive-patcher 小很多，patch速度中等；方案一般用在可以自己对需要升级的apk进行重新签名的场景，而不能部署于应用商店。内部使用了 HDiffPatch 算法作为基础，用C\C++语言开发。为了patch时精确还原，和加快压缩还原时的速度，需要对发布的apk文件执行 ApkNormalized 预处理流程（使用了较快的压缩参数，处理过的apk需要重新签名）。 patch时可以支持并行压缩来加快apk还原速度，但这时内存资源占用比较严重，和多个线程正在分别压缩的多个文件源大小和其压缩后大小的总和相当。
+ - **ApkDiffPatch** 是作者开源的算法，为给自己团队开发的apk更新来开发的方案，创建的补丁平均比 archive-patcher 小很多，patch速度中等；方案一般用在可以自己对需要升级的apk进行重新签名的场景，而不能部署于应用商店。内部使用了 HDiffPatch 算法作为基础，用C\C++语言开发。为了patch时精确还原，和加快压缩还原时的速度，需要对发布的apk文件执行 ApkNormalized 预处理流程（使用了较快的压缩参数，处理过的apk需要重新签名）。 patch时可以支持并行压缩来加快apk还原速度，但这时内存资源占用比较严重，和多个线程正在分别压缩的多个文件源大小和其压缩后大小的总和相当。
 ## sfpatcher 是什么？
 针对压缩档案文件的高性能增量更新方案。类似于 archive-patcher 方案可部署于应用商店的diff&patch算法，该领域的重要技术进展。   
 内部使用了 HDiffPatch 算法作为基础，用C\C++语言开发，当前支持为deflate格式压缩的数据创建优化的补丁(用zlib压缩的支持最好)，支持在多种档案格式文件之间创建优化的补丁。     
 ### sfpatcher 之道
 - 针对应用商店的场景专门设计，优化补丁大小，支持大型游戏，patch时精确快速还原任意apk文件，能够用于用户交互场景。
-- 多级可选的补丁包大小，极致的patch速度：提供比谷歌**archive-patcher**方案(+brotli-9压缩)下载补丁小10%的情况下，手机上patch速度是其8倍(这时补丁比BsDiff方案小约50%并且速度快得多)！补丁比其略大1%的情况下，手机上速度是其21倍！补丁比其小21%的情况下，平均速度是其3.5倍！ （注1）
-- patch时的内存等资源占用可控；diff时支持多种方案限制patch时的最大内存占用到合适的约定水平。即支持patch时O(1)平均内存占用的优化补丁包(并且patch不使用临时文件)！
-- 优化的用户体验：支持下载数据的同时就可以开始patch，不用将补丁文件保存到内存或硬盘上，结合快速的patch，很多时候下载完成时，就可以得到了完整的新版本apk文件。因为补丁变小，下载时间也会变短，从而可能缩短整体更新时间，也更省电省流量。
-- 利用精确还原算法，对于初次下载的apk文件也能进行解压后的重压缩；从而节省用户初次下载apk时的流量。最多情况下平均比直接下载apk文件减少22%的数据，部分文件能减少35%以上的数据！
+- 多级可选的补丁包大小，极致的patch速度：提供比谷歌**archive-patcher**方案(+lzma2压缩)下载补丁小24%的情况下，patch速度是其8倍(这时补丁比BsDiff方案小约55%并且速度快得多)！补丁比其小2%的情况下，速度是其30倍！ （注1）
+- patch时的内存等资源占用可控；diff时支持多种方案限制patch时的最大内存占用到合适的约定水平。即支持patch时O(1)平均内存占用的优化补丁包(并且patch过程中不使用临时文件)！
+- 优化的用户体验：可以支持下载数据的同时就开始patch，不用将补丁文件保存到内存或硬盘上，结合快速的patch，很多时候下载完成时，就可以得到了完整的新版本apk文件。 因为补丁变小，下载时间也会变短，从而可能缩短整体更新时间，也更省电省流量。
+- 利用精确还原算法，对于初次下载的apk文件也能进行解压后的重压缩；从而节省用户初次下载apk时的流量。最多情况下平均比直接下载apk文件减少25%的数据，部分文件能减少35%以上的数据！
 - 支持从中断的位置继续patch的特性，节省程序被终止后再次执行程序时的打补丁时间。
 - 高扩展性，框架支持多种压缩档案格式(apk、zip、zip64、jar、gz、tar等)和其嵌套(如apk中多个子apk); 档案格式本身和档案中数据的压缩算法都只是以插件的形式获得支持。patch端的执行，设计上不依赖于具体的档案格式。
 - patch端支持对客户端的oldApk文件进行虚拟化；比如可以用一些简单的描述数据来移除oldApk(v1--v4签名)中添加的各种类型渠道号的影响，提高了补丁适应能力。
 - diff端参数可选择性丰富，对各种使用场景可以定制性的设置合适的控制参数。
 - patch结果提供丰富的错误号，以利于追踪patch失败的原因，提高升级成功率。
 
-注1：（见性能测试对比数据）所有测试数据来源于收集的一些常用apk应用和游戏，共32个用例；在Kirin980上测试patch；archive-patcher 在patch上未包含解压缩补丁数据需要的时间。
+注1：所有测试数据来源于收集的一些常用apk应用，共32个用例；并在Kirin980上测试了部分patch。（见性能测试对比数据）
 
 ## 方案主要特性对比
 ### **sfpatcher 和 archive-patcher**：
@@ -78,114 +78,112 @@
 测试项主要包括：diff速度、diff内存占用、补丁大小(用压缩率代替，压缩后补丁大小/新版本apk大小)、patch速度、patch内存占用（后面这3项指标可能更重要一些）   
 
 # 测试用例
-收集了32组测试用例，这些用例来源于一些较长时间收集到的常见应用和游戏。   
-限于有限的用例和收集偏差，数据和实际情况可能略有差异；因为bsdiff内存占用过大和archive-patcher 512M大小的限制放弃了大游戏用例。   
-旧版本apk平均大小114.7MB，新版本apk平均大小117.1MB   
+收集了32组测试用例；这些apk下载于小米应用商店、谷歌Play商店，按照下载量大和最近进行过更新为标准进行收集。   
+限于有限的用例和收集偏差，数据和实际情况可能略有差异。 旧版本apk平均大小103.2MB，新版本apk平均大小103.8MB。   
 
 | 编号|app|新apk <-- 旧apk|新apk大小|旧apk大小|
 |----:|:---:|:----|----:|----:|
-|1|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.MobileTicket.png" width="36">|12306_5.2.11.apk <-- 5.1.2 | 61120025|66209244|
-|2|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.eg.android.AlipayGphone.png" width="36">|alipay10.1.99.apk <-- 10.1.95 |94178674|90951351|
-|3|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.eg.android.AlipayGphone.png" width="36">|alipay10.2.0.apk <-- 10.1.99 |95803005|94178674|
-|4|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.baidu.BaiduMap.png" width="36">|baidumaps10.25.0.apk <-- 10.24.12 |95539893|104527191|
-|5|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.baidu.BaiduMap.png" width="36">|baidumaps10.25.5.apk <-- 10.25.0 |95526276|95539893|
-|6|<img src="https://github.com/sisong/sfpatcher/raw/master/img/tv.danmaku.bili.png" width="36">|bilibili6.15.0.apk <-- 6.14.0 |74783182|72067209|
-|7|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.android.chrome.png" width="36">|chrome-64-0-3282-137.apk <-- 64-0-3282-123 |43879588|43879588|
-|8|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.android.chrome.png" width="36">|chrome-65-0-3325-109.apk <-- 64-0-3282-137 |43592997|43879588|
-|9|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.sdu.didi.psnger.png" width="36">|didi6.0.2.apk <-- 6.0.0 |100866981|91462767|
-|10|<img src="https://github.com/sisong/sfpatcher/raw/master/img/org.mozilla.firefox.png" width="36">|firefox68.10.0.apk <-- 68.9.0 |43543846|43531470|
-|11|<img src="https://github.com/sisong/sfpatcher/raw/master/img/org.mozilla.firefox.png" width="36">|firefox68.10.1.apk <-- 68.10.0 |43542786|43543846|
-|12|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.google.android.apps.maps.png" width="36">|google-maps-9-71-0.apk <-- 9-70-0 |50568872|51304768|
-|13|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.google.android.apps.maps.png" width="36">|google-maps-9-72-0.apk <-- 9-71-0 |54342938|50568872|
-|14|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.jingdong.app.mall.png" width="36">|jd9.0.0.apk <-- 8.5.12 |96891703|94233891|
-|15|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.jingdong.app.mall.png" width="36">|jd9.0.8.apk <-- 9.0.0 |97329322|96891703|
-|16|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.tencent.tmgp.jnbg2.png" width="36">|jinianbeigu2_1.12.4.apk <-- 1.12.3 |171611658|159691189|
-|17|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.blizzard.wtcg.hearthstone.cn.png" width="36">|lushichuanshuo19.4.71003.apk <-- 19.2.69054 |93799693|93442621|
-|18|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.sankuai.meituan.png" width="36">|meituan10.9.401.apk <-- 10.9.203 |88956726|89384406|
-|19|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.netease.mc.png" width="36">|minecraft1.17.30.apk <-- 1.17.20 |373025314|370324338|
-|20|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.netease.mc.png" width="36">|minecraft1.18.10.apk <-- 1.17.30 |401075178|373025314|
-|21|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.popcap.pvz2cthd.png" width="36">|popcap.pvz2_2.4.84.1010.apk <-- 2.4.84.1009 |387572492|386842079|
-|22|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.supercell.clashofclans.png" width="36">|supercell.clashofclans13.369.3.apk <-- 13.180.18 |152896934|149011539|
-|23|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.outfit7.talkingtomgoldrun.png" width="36">|tangmumaopaoku4.8.0.971.apk <-- 4.6.0.913 |105486308|104732413|
-|24|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.taobao.taobao.png" width="36">|taobao9.8.0.apk <-- 9.7.2 |178734456|176964070|
-|25|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.taobao.taobao.png" width="36">|taobao9.9.1.apk <-- 9.8.0 |184437315|178734456|
-|26|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.ss.android.ugc.aweme.png" width="36">|tiktok11.5.0.apk <-- 11.3.0 |88544106|87075000|
-|27|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.google.android.apps.translate.png" width="36">|translate6.9.0.apk <-- 6.8.0 |28171978|28795243|
-|28|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.google.android.apps.translate.png" width="36">|translate6.9.1.apk <-- 6.9.0 |31290990|28171978|
-|29|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.tencent.mm.png" width="36">|weixin7.0.15.apk <-- 7.0.14 |148405483|147695111|
-|30|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.tencent.mm.png" width="36">|weixin7.0.16.apk <-- 7.0.15 |158906413|148405483|
-|31|<img src="https://github.com/sisong/sfpatcher/raw/master/img/cn.wps.moffice_eng.png" width="36">|wps12.5.2.apk <-- 12.5.1 |51293286|51136905|
-|32|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.tanwan.yscqlyzf.png" width="36">|yuanshichuanqi1.3.608.apk <-- 1.3.607 |192578139|192577253|
+|1|<img src="https://github.com/sisong/sfpatcher/raw/master/img/cn.wps.moffice_eng.png" width="36">|cn.wps.moffice_eng_13.30.0.apk <-- 13.29.0|95904918|94914262|
+|2|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.achievo.vipshop.png" width="36">|com.achievo.vipshop_7.80.2.apk <-- 7.79.9|127395632|120237937|
+|3|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.adobe.reader.png" width="36">|com.adobe.reader_22.9.0.24118.apk <-- 22.8.1.23587|27351437|27087718|
+|4|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.alibaba.android.rimet.png" width="36">|com.alibaba.android.rimet_6.5.50.apk <-- 6.5.45|195314449|193489159|
+|5|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.amazon.mShop.android.shopping.png" width="36">|com.amazon.mShop.android.shopping_24.18.2.apk <-- 24.18.0|76328858|76287423|
+|6|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.baidu.BaiduMap.png" width="36">|com.baidu.BaiduMap_16.5.0.apk <-- 16.4.5|131382821|132308374|
+|7|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.dragon.read.png" width="36">|com.dragon.read_5.5.3.33.apk <-- 5.5.1.32|45112658|43518658|
+|8|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.ebay.mobile.png" width="36">|com.ebay.mobile_6.80.0.1.apk <-- 6.79.0.1|61202587|61123285|
+|9|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.eg.android.AlipayGphone.png" width="36">|com.eg.android.AlipayGphone_10.3.0.apk <-- 10.2.96|122073135|119046208|
+|10|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.google.android.apps.translate.png" width="36">|com.google.android.apps.translate_6.46.0.apk <-- 6.45.0|48892967|48843378|
+|11|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.google.android.googlequicksearchbox.png" width="36">|com.google.android.googlequicksearchbox_13.38.11.apk <-- 13.37.10|190539272|189493966|
+|12|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.jingdong.app.mall.png" width="36">|com.jingdong.app.mall_11.3.2.apk <-- 11.3.0|101098430|100750191|
+|13|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.netease.cloudmusic.png" width="36">|com.netease.cloudmusic_8.8.45.apk <-- 8.8.40|181914846|181909451|
+|14|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.reddit.frontpage.png" width="36">|com.reddit.frontpage_2022.36.0.apk <-- 2022.34.0|50205119|47854461|
+|15|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.sankuai.meituan.takeoutnew.png" width="36">|com.sankuai.meituan.takeoutnew_7.94.3.apk <-- 7.92.2|74965893|74833926|
+|16|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.sankuai.meituan.png" width="36">|com.sankuai.meituan_12.4.207.apk <-- 12.4.205|93613732|93605911|
+|17|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.sina.weibo.png" width="36">|com.sina.weibo_12.10.0.apk <-- 12.9.5|156881776|156617913|
+|18|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.smile.gifmaker.png" width="36">|com.smile.gifmaker_10.8.40.27845.apk <-- 10.8.30.27728|102403847|101520138|
+|19|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.ss.android.article.news.png" width="36">|com.ss.android.article.news_9.0.7.apk <-- 9.0.6|54444003|53947221|
+|20|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.ss.android.ugc.aweme.png" width="36">|com.ss.android.ugc.aweme_22.6.0.apk <-- 22.5.0|171683897|171353597|
+|21|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.taobao.taobao.png" width="36">|com.taobao.taobao_10.18.10.apk <-- 10.17.0|117218670|117111874|
+|22|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.tencent.mm.png" width="36">|com.tencent.mm_8.0.28.apk <-- 8.0.27|266691829|276603782|
+|23|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.tencent.mobileqq.png" width="36">|com.tencent.mobileqq_8.9.15.apk <-- 8.9.13|311322716|310529631|
+|24|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.tencent.mtt.png" width="36">|com.tencent.mtt_13.2.0.0103.apk <-- 13.2.0.0045|97342747|97296757|
+|25|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.tripadvisor.tripadvisor.png" width="36">|com.tripadvisor.tripadvisor_49.5.apk <-- 49.3|28744498|28695346|
+|26|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.twitter.android.png" width="36">|com.twitter.android_9.61.0.apk <-- 9.58.2|36141840|35575484|
+|27|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.ubercab.png" width="36">|com.ubercab_4.442.10002.apk <-- 4.439.10002|69923232|64284150|
+|28|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.ximalaya.ting.android.png" width="36">|com.ximalaya.ting.android_9.0.66.3.apk <-- 9.0.62.3|115804845|113564876|
+|29|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.xunmeng.pinduoduo.png" width="36">|com.xunmeng.pinduoduo_6.30.0.apk <-- 6.29.1|30896833|30951567|
+|30|<img src="https://github.com/sisong/sfpatcher/raw/master/img/com.youdao.dict.png" width="36">|com.youdao.dict_9.2.29.apk <-- 9.2.28|110624682|110628778|
+|31|<img src="https://github.com/sisong/sfpatcher/raw/master/img/org.mozilla.firefox.png" width="36">|org.mozilla.firefox_105.2.0.apk <-- 105.1.0|83078464|83086656|
+|32|<img src="https://github.com/sisong/sfpatcher/raw/master/img/tv.danmaku.bili.png" width="36">|tv.danmaku.bili_7.1.0.apk <-- 7.0.0|104774723|104727005|
 
 # 测试条件
-在一台笔记本PC上对比测试，CPU Ryzen 5800H，Windows11, SSD硬盘   
-测试时关闭了HDiffPatch和sfpatcher在diff时的多线程。   
+在一台笔记本PC上对比测试：Windows11, CPU R9-7945HX, SSD PCIe4.0x4 4T, DDR5 5200MHz 32Gx2   
+测试时关闭了HDiffPatch和sfpatcher在diff时的多线程，而开启多线程时一般可以成倍的提高diff速度。   
 patch时标注tmpf表示使用了临时文件来储存中间数据；mem表示在内存中执行不使用临时文件；limit表示使用限制内存占用的模式执行；而标注MT表示开启了多线程(8个)并行。   
 **BsDiff** v4.3 还是保持着使用bzip2算法压缩补丁。   
 **xdelta** v3.1.0 使用`-e -n -f -s`来创建补丁, 而用`-d -f -s`参数来执行的patch。   
-**HDiffPatch** v4.2.4 支持2种diff模式，`-s-16`和`-m-1 -cache -block`模式分别测试，输出补丁时分别测试了用lzma2、zstd压缩的测试。HDiffPatch支持输出兼容bsdiff的补丁(bzip2压缩)，补充了`-BSD -m-1 -cache -block`参数后的测试结果。   
+**xdelta3 -B** 是指diff时添加`-B oldSize`增大引用窗口到oldApk文件相同大小进行的测试，其结果仅供参考，因为patch时内存占用也会随之同样增大。   
+**HDiffPatch** v4.6.3 支持2种diff模式，`-s-16`和`-m-1 -cache -block`模式分别测试，输出补丁时分别测试了用lzma2、zstd压缩的测试。HDiffPatch支持输出兼容bsdiff的补丁(bzip2压缩)，补充了`-BSD -m-1 -cache -block`参数后的测试结果。   
 **archive-patcher** v1.0 一般使用gzip或brotli算法压缩补丁，这里为了diff速度并更好的和其他方案对比补丁大小，diff时输出不压缩的补丁，然后再额外使用lzma2压缩补丁。 需要注意：这时收集到的diff数据不包含额外压缩时的时间和内存消耗，收集到的patch数据也**不包含**解压的时间和内存消耗等。   
-**ApkDiffPatch** v1.3.6 使用了lzma来压缩输出的补丁。   
-**sfpatcher** v1.0.16 支持4个级别的diff，-0,-1,-2和-3分别测试； sfpatcher支持不需要旧版本apk而直接重新压缩新版本apk的模式(-pre)；sfpatcher支持多种可选压缩输出，这里测试了-c-zstd-21和-c-lzma2-9这2种。   
-sfpatcher补充测试了用ApkNormalized(ApkDiffPatch方案)处理过的apk文件，分别进行增量测试和重压缩测试(标记为Norm)。   
+**ApkDiffPatch** v1.6.0 使用了lzma2来压缩输出的补丁。   
+**sfpatcher** v1.1.1 支持4个级别的diff，-0,-1,-2和-3分别测试； sfpatcher支持不需要旧版本apk而直接重新压缩新版本apk的模式(-pre)；sfpatcher支持多种可选压缩输出，这里测试了-c-zstd-21和-c-lzma2-9这2种。   
+sfpatcher补充测试了用ApkNormalized(ApkDiffPatch方案)处理过的apk文件，分别进行增量测试和lzma2重压缩测试(标记为Norm)。   
    
-另外在一部安卓手机(CPU:Kirin980)上对sfpatcher进行了一些patch时间测试，补充到了最后一列。   
+另外在一部安卓手机(CPU:Kirin980 2×A76 2.6G + 2×A76 1.92G + 4×A55 1.8G)上对hpatchz&hsynz&sfpatcher进行了一些patch时间测试，补充到了最后一列。   
 
 # 测试结果   
-其中：平均压缩率=(补丁大小/新apk大小)的平均值； 单次测试的内存统计值为峰值内存；
+其中：平均压缩率=(补丁大小/新apk大小)的平均值； 单次测试的内存占用统计值为峰值私有内存；
 
-|diff方案|平均压缩率|平均内存|平均速度|patch|平均内存|最大内存|平均速度|Kirin980速度|
+|diff方案|平均压缩率|平均内存|平均速度|patch|平均内存|最大内存|平均速度|Kirin980|
 |:----|----:|----:|----:|----|----:|----:|----:|----:|
-|zstd --patch-from|58.81%|2248M|3.0MB/s|mem|234M|741M|670MB/s|
-|**xdelta3 lzma**|**59.92%**|**228M**|**2.9MB/s**|mem|**100M**|**100M**|**159MB/s**|
-|**bsdiff bzip2**|**59.76%**|**1035M**|**1.0MB/s**|mem|**243M**|**751M**|**42MB/s**|
-|hdiffz-m-1 -BSD|59.50%|523M|5.4MB/s|mem|13M|14M|44MB/s|
-|**hdiffz-m-1 zstd**|**58.74%**|**612M**|**5.0MB/s**|mem|**13M**|**14M**|**680MB/s**|**265MB/s**|
-|hdiffz-m-1 lzma2|58.67%|523M|3.7MB/s|mem|12M|13M|285MB/s|
-|hdiffz-s-16 zstd-17|59.27%|136M|9.7MB/s|mem|12M|12M|763MB/s|
-|**archive-patcher**|28.53%|**1740M**|**0.8MB/s**|tmpf|**64M**|**100M**|**15MB/s**|
-|ApkDiffPatch|20.53%|982M|2.0MB/s|mem|138M|386M|21MB/s|
-|ApkDiffPatch|20.53%|982M|2.0MB/s|memMT|211M|461M|47MB/s|
-|ApkDiffPatch|20.53%|982M|2.0MB/s|tmpf|17M|22M|19MB/s|
-|ApkDiffPatch|20.53%|982M|2.0MB/s|tmpfMT|84M|207M|41MB/s|
-|sfpatcher-3 lzma2 Norm|20.88%|1032M|2.4MB/s|limit|47M|57M|24MB/s|
-|**sfpatcher-3 lzma2 Norm**|**20.88%**|1032M|2.4MB/s|limitMT|**52M**|**63M**|**78MB/s**|
-|sfpatcher-3 lzma2 Norm|20.88%|1032M|2.4MB/s|memMT|142M|397M|95MB/s|
-|sfpatcher-3pre lzma2 Norm|73.64%|601M|1.6MB/s|mem|38M|41M|16MB/s|
-|**sfpatcher-3pre lzma2 Norm**|**73.64%**|601M|1.6MB/s|memMT|**43M**|**47M**|**55MB/s**|
+|zstd --patch-from|53.18%|2199M|3.6MB/s|mem|209M|596M|609MB/s|
+|**xdelta3**|**54.51%**|422MB|3.8MB/s|mem|**98MB**|**99MB**|**170MB/s**|
+|xdelta3 -B|53.53%|848M|4.3MB/s|mem|183M|548M|171MB/s|
+|**bsdiff**|**53.84%**|931MB|1.2MB/s|mem|**218MB**|**605MB**|**54MB/s**|
+|hdiffz|54.40%|509M|8.8MB/s|mem|5M|6M|682MB/s|443MB/s|
+|hdiffz lzma2|52.93%|525M|4.1MB/s|mem|21M|22M|260MB/s|131MB/s|
+|**hdiffz p1 zstd**|**53.04%**|537MB|5.4MB/s|mem|**21MB**|**22MB**|**598MB/s**|371MB/s|
+|hdiffz -s zstd|53.44%|221M|10.1MB/s|mem|20M|22M|620MB/s|
+|**archive-patcher**|**31.65%**|1448MB|0.9MB/s|temf|**558MB**|**587MB**|**14MB/s**|
+|ApkDiffPatch|18.44%|1003M|2.2MB/s|mem|164M|453M|20MB/s|
+|ApkDiffPatch|18.44%|1003M|2.2MB/s|memMT|257M|628M|64MB/s|
+|ApkDiffPatch|18.44%|1003M|2.2MB/s|tmpfMT|21M|25M|17MB/s|
+|ApkDiffPatch|18.44%|1003M|2.2MB/s|tmpfMT|101M|211M|46MB/s|
+|sf_diff-3 Norm|18.35%|1147M|2.2MB/s|limit|43M|59M|21MB/s|
+|**sf_diff-3**|**18.35%**|1147MB|2.2MB/s|limitMT|**49MB**|**65MB**|**77MB/s**|
+|sf_diff-3 Norm|18.35%|1147M|2.2MB/s|memMT|170M|452M|99MB/s|
+|sf_diff-3pre Norm|64.91%|610M|1.7MB/s|mem|37M|41M|14MB/s|
+|**sf_diff-3pre**|**64.91%**|610MB|1.7MB/s|memMT|**42MB**|**46MB**|**64MB/s**|
 ||
-|sfpatcher-0 zstd|58.74%|612M|4.9MB/s|mem|13M|14M|716MB/s|265MB/s|
-|sfpatcher-0 zstd|58.74%|612M|4.9MB/s|memMT|14M|15M|890MB/s|293MB/s|
-|sfpatcher-0 lzma2|58.67%|523M|3.7MB/s|mem|12M|13M|286MB/s|160MB/s|
-|sfpatcher-0 lzma2|58.67%|523M|3.7MB/s|memMT|13M|15M|342MB/s|172MB/s|
-|sfpatcher-1 zstd|31.70%|774M|2.8MB/s|limit|16M|20M|227MB/s|119MB/s|
-|**sfpatcher-1 zstd**|**31.70%**|**774M**|**2.8MB/s**|limitMT|**19M**|**22M**|**394MB/s**|**218MB/s**|
-|sfpatcher-1 lzma2|30.76%|725M|2.6MB/s|limit|15M|19M|116MB/s|65MB/s|
-|sfpatcher-1 lzma2|30.76%|725M|2.6MB/s|limitMT|18M|21M|170MB/s|96MB/s|
-|sfpatcher-2 zstd|28.75%|890M|2.6MB/s|limit|17M|24M|48MB/s|32MB/s|
-|**sfpatcher-2 zstd**|**28.75%**|890M|2.6MB/s|limitMT|**21M**|**30M**|**157MB/s**|**85MB/s**|
-|sfpatcher-2 lzma2|27.53%|859M|2.5MB/s|limit|16M|24M|41MB/s|26MB/s|
-|**sfpatcher-2 lzma2**|**27.53%**|859M|2.5MB/s|limitMT|**21M**|**29M**|**107MB/s**|**59MB/s**|
-|sfpatcher-3 zstd|25.13%|995M|2.3MB/s|limit|19M|24M|21MB/s|14MB/s|
-|sfpatcher-3 zstd|25.13%|995M|2.3MB/s|limitMT|24M|30M|80MB/s|42MB/s|
-|sfpatcher-3 lzma2|23.70%|976M|2.3MB/s|limit|19M|24M|20MB/s|13MB/s|
-|**sfpatcher-3 lzma2**|**23.70%**|976M|2.3MB/s|limitMT|**24M**|**29M**|**66MB/s**|**36MB/s**|
-||
-|sfpatcher-2pre zstd|87.61%|517M|2.4MB/s|mem|22M|26M|38MB/s|25MB/s|
-|**sfpatcher-2pre zstd**|**87.61%**|517M|2.4MB/s|memMT|**26M**|**33M**|**174MB/s**|**80MB/s**|
-|sfpatcher-2pre lzma2|82.84%|380M|1.8MB/s|mem|22M|25M|24MB/s|15MB/s|
-|**sfpatcher-2pre lzma2**|**82.84%**|380M|1.8MB/s|memMT|**25M**|**31M**|**55MB/s**|**30MB/s**|
-|sfpatcher-3pre zstd|83.18%|545M|1.8MB/s|mem|22M|26M|18MB/s|12MB/s|
-|sfpatcher-3pre zstd|83.18%|545M|1.8MB/s|memMT|28M|33M|80MB/s|39MB/s|
-|sfpatcher-3pre lzma2|77.92%|402M|1.6MB/s|mem|22M|25M|14MB/s|9MB/s|
-|**sfpatcher-3pre lzma2**|**77.92%**|402M|1.6MB/s|memMT|**27M**|**31M**|**45MB/s**|**24MB/s**|
+|sfpatcher-0 zstd|53.04%|537M|5.4MB/s|mem|19M|20M|564MB/s|371MB/s|
+|sfpatcher-0 zstd|53.05%|1251M|11.0MB/s|memMT|20M|22M|739MB/s|489MB/s|
+|sfpatcher-0 lzma2|52.92%|525M|4.1MB/s|mem|18M|20M|253MB/s|131MB/s|
+|sfpatcher-0 lzma2|52.94%|557M|18.8MB/s|memMT|19M|22M|346MB/s|157MB/s|
+|sfpatcher-1 zstd|31.08%|818M|2.3MB/s|limit|15M|19M|201MB/s|92MB/s|
+|**sfpatcher-1 zstd**|**31.07%**|1025MB|4.6MB/s|limitMT|**18MB**|**25MB**|**424MB/s**|189MB/s|
+|sfpatcher-1 lzma2|29.75%|819M|2.3MB/s|limit|14M|19M|104MB/s|50MB/s|
+|sfpatcher-1 lzma2|29.75%|809M|5.3MB/s|limitMT|17M|24M|167MB/s|74MB/s|
+|sfpatcher-2 zstd|26.27%|975M|2.1MB/s|limit|15M|20M|43MB/s|
+|sfpatcher-2 zstd|26.29%|1002M|4.7MB/s|limitMT|20M|27M|155MB/s|
+|sfpatcher-2 lzma2|24.11%|976M|2.1MB/s|limit|15M|20M|37MB/s|19MB/s|
+|**sfpatcher-2 lzma2**|**24.15%**|968MB|5.0MB/s|limitMT|**20MB**|**26MB**|**108MB/s**|45MB/s|
+|sfpatcher-3 lzma2|23.53%|997M|2.0MB/s|limit|16M|20M|31MB/s|17MB/s|
+|sfpatcher-3 lzma2|23.56%|987M|4.5MB/s|limitMT|21M|26M|98MB/s|40MB/s|
+|sfpatcher-2pre zstd|81.36%|376M|2.8MB/s|mem|19M|23M|37MB/s|
+|sfpatcher-2pre zstd|81.36%|1646M|7.1MB/s|memMT|24M|30M|193MB/s|
+|sfpatcher-3pre zstd|79.20%|387M|2.4MB/s|mem|20M|23M|29MB/s|
+|sfpatcher-3pre zstd|79.20%|1698M|6.5MB/s|memMT|25M|30M|144MB/s|
+|sfpatcher-2pre lzma2|75.23%|378M|1.9MB/s|mem|20M|23M|24MB/s|12MB/s|
+|**sfpatcher-2pre lzma2**|**75.42%**|1091MB|8.3MB/s|memMT|**24MB**|**28MB**|**63MB/s**|26MB/s|
+|sfpatcher-3pre lzma2|73.34%|386M|1.7MB/s|mem|20M|23M|21MB/s|11MB/s|
+|sfpatcher-3pre lzma2|73.53%|1126M|8.1MB/s|memMT|25M|29M|60MB/s|24MB/s|
    
 
 # 游戏测试用例
 最近收集了32组游戏测试用例，这些apk下载于小米应用商店、TapTap商店、谷歌Play商店，按照下载量大和最近进行过更新为标准进行收集。   
-对比测试了 xdelta、HDiffPatch、sfpatcher； 因为有大游戏所以放弃了无法顺利完成测试的bsdiff和archive-patcher。   
-**sfpatcher** v1.1.0 测试时，调整了部分参数，相比前面的测试增大了patch时的内存需求。   
-旧版本apk平均大小1029.5MB，新版本apk平均大小1040.9MB   
+对比测试了 xdelta、bsdiff、HDiffPatch、sfpatcher； 因为有大游戏所以放弃了无法完成测试的archive-patcher。   
+**sfpatcher** v1.1.1 测试时，调整了部分参数，相比前面的测试增大了patch时的内存需求。   
+旧版本apk平均大小1029.5MB，新版本apk平均大小1040.9MB。   
 
 | 编号|app|新apk <-- 旧apk|新apk大小|旧apk大小|
 |----:|:---:|:----|----:|----:|
@@ -224,23 +222,28 @@ sfpatcher补充测试了用ApkNormalized(ApkDiffPatch方案)处理过的apk文�
    
 
 # 游戏测试结果   
-其中：单次测试的内存统计值改为峰值私有内存。   
- **xdelta3 -B**是指增大引用窗口到oldApk文件相同大小进行的测试，其结果仅供参考，因为patch时内存占用也会随之同样增大。   
 
 |diff方案|平均压缩率|平均内存|平均速度|patch|平均内存|最大内存|平均速度|最差速度|
-|:----|----:|----:|----:|----:|----|----:|----:|----:|
-|**xdelta3 lzma**|**54.14%**|423MB|2.3MB/s|mem|**99MB**|**104MB**|**54MB/s**|**17MB/s**|
-|xdelta3 lzma +hpatchz -m|54.14%|423MB|2.3MB/s|mem|79MB|83MB|**191MB/s**|**63MB/s**|
-|xdelta3 lzma -B|35.89%|6424MB|4.1MB/s|mem|1299MB|2090MB|131MB/s|46MB/s|
-|xdelta3 lzma -B +hpatchz -m|35.89%|6424MB|4.1MB/s|mem|1043MB|2028MB|197MB/s|123MB/s|
-|**hdiffz -zstd**|**35.41%**|3835MB|5.3MB/s|mem|20MB|20MB|**476MB/s**|**203MB/s**|
-|hdiffz -lzma2|35.26%|3812MB|4.4MB/s|mem|19MB|20MB|253MB/s|106MB/s|
-|sf_diff -1 -zstd|22.23%|4501MB|4.2MB/s|limit|23MB|35MB|300MB/s|112MB/s|
-|**sf_diff -1 -zstd**|**22.23%**|4501MB|4.2MB/s|limitMT|**26MB**|**38MB**|**465MB/s**|**215MB/s**|
-|sf_diff -2 -lzma2|19.61%|5166MB|3.8MB/s|limit|26MB|47MB|76MB/s|10MB/s|
-|sf_diff -2 -lzma2|19.61%|5166MB|3.8MB/s|limitMT|32MB|54MB|186MB/s|32MB/s|
-|sf_diff -3 -lzma2|17.87%|5685MB|3.6MB/s|limit|32MB|47MB|37MB/s|5MB/s|
-|sf_diff -3 -lzma2|17.87%|5685MB|3.6MB/s|limitMT|39MB|54MB|119MB/s|20MB/s|   
+|:----|----:|----:|----:|----|----:|----:|----:|----:|
+|zstd|36.35%|5297MB|3.2MB/s|mem|2088MB|4033MB|852MB/s|576MB/s|
+|**xdelta3 lzma**|**54.14%**|423MB|3.5MB/s|mem|**99MB**|**104MB**|**94MB/s**|**30MB/s**|
+|xdelta3 lzma +hpatchz -m|54.14%|423MB|3.5MB/s|mem|79MB|83MB|258MB/s|84MB/s|
+|xdelta3 lzma -B|35.89%|6424MB|6.6MB/s|mem|1299MB|2090MB|233MB/s|76MB/s|
+|xdelta3 lzma -B +hpatchz -m|35.89%|6424MB|6.6MB/s|mem|1043MB|2028MB|291MB/s|180MB/s|
+|**bsdiff**|**36.15%**|9284MB|1.1MB/s|mem|**2085MB**|**4042MB**|**89MB/s**|**32MB/s**|
+|bsdiff +hpatchz -m|36.15%|9284MB|1.1MB/s|mem|1045MB|2029MB|95MB/s|33MB/s|
+|bsdiff +hpatchz -s|36.15%|9284MB|1.1MB/s|mem|14MB|14MB|87MB/s|32MB/s|
+|hdiffz p1 zstd|35.41%|3812MB|6.3MB/s|mem|23MB|23MB|712MB/s|291MB/s|
+|**hdiffz p8 zstd**|**35.42%**|4249MB|25.3MB/s|mem|**22MB**|**23MB**|**703MB/s**|**284MB/s**|
+|hdiffz p1 lzma2|35.26%|3813MB|5.3MB/s|mem|22MB|23MB|344MB/s|136MB/s|
+|hdiffz p8 lzma2|35.28%|3842MB|29.9MB/s|mem|22MB|23MB|344MB/s|135MB/s|
+|sfpatcher-1 zstd|22.23%|4491MB|5.4MB/s|limit|23MB|35MB|412MB/s|152MB/s|
+|**sfpatcher-1 zstd**|**22.20%**|4684MB|15.5MB/s|limitMT|**26MB**|**38MB**|**634MB/s**|**308MB/s**|
+|sfpatcher-2 lzma2|19.61%|5162MB|4.9MB/s|limit|26MB|47MB|101MB/s|13MB/s|
+|**sfpatcher-2 lzma2**|**19.62%**|5121MB|16.8MB/s|limitMT|**32MB**|**54MB**|**249MB/s**|**44MB/s**|
+|sfpatcher-3 lzma2|17.87%|5682MB|4.6MB/s|limit|32MB|47MB|49MB/s|6MB/s|
+|sfpatcher-3 lzma2|17.91%|5631MB|15.6MB/s|limitMT|39MB|54MB|157MB/s|26MB/s|
+   
 
 # sfpatcher的大规模测试
 收集了Top500中多个app应用(不含游戏)和其多个历史版本，形成了4695个测试用例，进行了diff和patch多种参数测试并分别使用了lzma2压缩和zstd压缩输出补丁。   
