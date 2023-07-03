@@ -149,11 +149,11 @@ sfpatcher补充测试了用ApkNormalized(ApkDiffPatch方案)处理过的apk文�
 |ApkDiffPatch|18.44%|1003M|2.2MB/s|memMT|257M|628M|64MB/s|
 |ApkDiffPatch|18.44%|1003M|2.2MB/s|tmpfMT|21M|25M|17MB/s|
 |ApkDiffPatch|18.44%|1003M|2.2MB/s|tmpfMT|101M|211M|46MB/s|
-|sf_diff-3 Norm|18.35%|1147M|2.2MB/s|limit|43M|59M|21MB/s|
-|**sf_diff-3**|**18.35%**|1147MB|2.2MB/s|limitMT|**49MB**|**65MB**|**77MB/s**|
-|sf_diff-3 Norm|18.35%|1147M|2.2MB/s|memMT|170M|452M|99MB/s|
-|sf_diff-3pre Norm|64.91%|610M|1.7MB/s|mem|37M|41M|14MB/s|
-|**sf_diff-3pre**|**64.91%**|610MB|1.7MB/s|memMT|**42MB**|**46MB**|**64MB/s**|
+|sfpatcher-3 Norm|18.35%|1147M|2.2MB/s|limit|43M|59M|21MB/s|
+|**sfpatcher-3 Norm**|**18.35%**|1147MB|2.2MB/s|limitMT|**49MB**|**65MB**|**77MB/s**|
+|sfpatcher-3 Norm|18.35%|1147M|2.2MB/s|memMT|170M|452M|99MB/s|
+|sfpatcher-3pre Norm|64.91%|610M|1.7MB/s|mem|37M|41M|14MB/s|
+|**sfpatcher-3pre Norm**|**64.91%**|610MB|1.7MB/s|memMT|**42MB**|**46MB**|**64MB/s**|
 ||
 |sfpatcher-0 zstd|53.04%|537M|5.4MB/s|mem|19M|20M|564MB/s|371MB/s|
 |sfpatcher-0 zstd|53.05%|1251M|11.0MB/s|memMT|20M|22M|739MB/s|489MB/s|
