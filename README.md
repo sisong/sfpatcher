@@ -1,5 +1,5 @@
 ﻿# sfpatcher：针对应用商店的apk增量算法
-**v1.0.15 已正式上线**，为亿级手机终端用户提供更新服务，当前最新版本 v1.1.1   
+**v1.0.15 已正式上线**，为亿级手机终端用户提供更新服务，当前最新版本 v1.1.2   
 [**sfpatcher** 命令行工具下载](https://github.com/sisong/sfpatcher/releases)（支持Windows、Linux、MacOS），
 [命令行使用说明](https://github.com/sisong/sfpatcher/blob/master/cmdline_doc.md)   
 需要商业授权(含源代码&培训)，请联系作者： <housisong@hotmail.com>   
@@ -49,16 +49,16 @@
 - diff端参数可选择性丰富，对各种使用场景可以定制性的设置合适的控制参数。
 - patch结果提供丰富的错误号，以利于追踪patch失败的原因，提高升级成功率。
 
-注1：所有测试数据来源于收集的一些常用apk应用，共32个用例；并在Kirin980上测试了部分patch。（见性能测试对比数据）
+注1：所有测试数据来源于收集的一些常用apk应用，共32个用例；并在ARM CPU Kirin980上测试了部分patch。（见性能测试对比数据）
 
 ## 方案主要特性对比
 ### **sfpatcher 和 archive-patcher**：
-- sfpatcher 的patch端比 archive-patcher 快很多倍(相近大小的情况下快21倍)，资源占用小(O(1))，能够满足各种使用场景的要求；而 archive-patcher 还原慢，资源占用大，一般用于后台更新场景。
+- sfpatcher 的patch端比 archive-patcher 快很多倍(相近补丁大小的情况下快29倍)，资源占用小(O(1))，能够满足各种使用场景的要求；而 archive-patcher 还原慢，资源占用大，一般用于后台更新场景。
 - sfpatcher 生成的补丁大小在很多情况下也可以比 archive-patcher 的补丁（压缩后）更小。
 - sfpatcher 创建压缩后的补丁，执行patch前不需要额外步骤解压缩补丁，边patch边随时解压缩补丁数据；而 archive-patcher 创建的补丁需要额外压缩和patch前解压。
 - sfpatcher 在patch时不需要对oldApk提前进行解压，边patch边随时解压用到的oldApk中的数据，可以始终保持O(1)内存占用；而  archive-patcher 需要提前将oldApk中用到的数据全部解压缩到一个临时文件里。
-- sfpatcher 支持大型apk文件，包括游戏等的更新升级，patch速度快；而 archive-patcher 有最大解压总数据512M的大小限制，而且patch也很慢，某些情况下甚至patch需要几分钟。
-- sfpatcher 基于C\C++，部署兼容性不受系统限制；结合JNI在安卓上使用，兼容安卓4.1到安卓13；而 archive-patcher 基于 java 并和系统环境耦合重，diff和patch时都很可能会遇到环境兼容性问题。
+- sfpatcher 支持大型apk文件，包括游戏等的更新升级，patch速度快；而 archive-patcher 有解压+未压缩总数据最大512M的限制，而且patch也很慢，某些情况下甚至patch需要几分钟。
+- sfpatcher 基于C\C++，部署兼容性不受系统限制；结合JNI在安卓上使用，兼容安卓4.1到安卓13；而 archive-patcher 基于 java 并和运行时系统环境耦合重，diff和patch时都很可能会遇到环境兼容性问题。
 ### **sfpatcher 和 ApkDiffPatch**：
 - sfpatcher 可用于广泛的场景，而ApkDiffPatch用于能够对apk文件进行重新签名的场景。
 - sfpatcher 的patch端比 ApkDiffPatch 更快一些，多线程时内存占用也比较可控；而 ApkDiffPatch 在并行patch的时候内存占用较大。
@@ -134,7 +134,7 @@ sfpatcher补充测试了用ApkNormalized(ApkDiffPatch方案)处理过的apk文�
 # 测试结果   
 其中：平均压缩率=(补丁大小/新apk大小)的平均值； 单次测试的内存占用统计值为峰值私有内存；
 
-|diff方案|平均压缩率|平均内存|平均速度|patch|平均内存|最大内存|平均速度|Kirin980|
+|diff方案|平均压缩率|平均内存|平均速度|patch|平均内存|最大内存|平均速度|arm Kirin980|
 |:----|----:|----:|----:|----|----:|----:|----:|----:|
 |zstd --patch-from|53.18%|2199M|3.6MB/s|mem|209M|596M|609MB/s|
 |**xdelta3**|**54.51%**|422MB|3.8MB/s|mem|**98MB**|**99MB**|**170MB/s**|
