@@ -176,7 +176,8 @@ options:
   -p-parallelThreadNumber
       DEFAULT -p-8!  if parallelThreadNumber>1 then
       open multi-thread Parallel patch mode!
-  -t  test other patcher, diffFile created by $hdiffz $hdiffz -SD $bsdiff,
+  -t  test other patcher, diffFile created by
+      $hdiffz $hdiffz -SD $hdiffz -BSD $bsdiff4 $hdiffz -VCD $xdelta3 -S $xdelta3 -S lzma $open-vcdiff,
       or created by $sf_diff -HD $sf_diff -SD $sf_diff -BSD
   -v  output Version info.
 ```
@@ -206,7 +207,7 @@ options:
 * **-p 选项**：设置patch时使用的最大线程数，一般来说线程数越多速度越快。很多时候该参数对-o-0生成的补丁加速作用较小，对-o-1生成的补丁有不错的并行加速效果（可以不用给太多的线程数）。   
 而对-o-2和-o-3生成的补丁并行加速效果会非常好。并行调度代码能很好的支持big.LITTLE大小核架构的CPU。
 
-* **-t 选项**： 测试其他兼容格式的补丁合成，支持**hdiffz**、**bsdiff**创建的补丁包文件，或者用sf_diff -HD、sf_diff -SD、sf_diff -BSD创建的兼容补丁包文件。   
+* **-t 选项**： 测试其他兼容格式的补丁合成，支持**hdiffz**、**bsdiff**、**xdelta3 -S**、**xdelta3 -S lzma**、**open-vcdiff**创建的补丁包文件。   
 对于bsdiff的补丁，和**bspatch**不同，本程序使用一个较小的固定内存大小O(1)的模式执行patch过程。
 
 * **-v 选项**： 输出当前程序的版本等信息。 
