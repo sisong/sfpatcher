@@ -1,5 +1,5 @@
 ﻿# sfpatcher：针对应用商店的apk增量算法
-**v1.0.15 已正式上线**，为亿级手机终端用户提供更新服务，当前最新版本 v1.1.3   
+**v1.0.15 已正式上线**，为亿级手机终端用户提供更新服务，当前最新版本 v1.2.0   
 [**sfpatcher** 命令行工具下载](https://github.com/sisong/sfpatcher/releases)（支持Windows、Linux、MacOS），
 [命令行使用说明](https://github.com/sisong/sfpatcher/blob/master/cmdline_doc.md)   
 需要商业授权(含源代码&培训)，请联系作者： <housisong@hotmail.com>   
@@ -118,7 +118,6 @@
 
 # 测试条件
 在一台笔记本PC上对比测试：Windows11, CPU R9-7945HX, SSD PCIe4.0x4 4T, DDR5 5200MHz 32Gx2   
-测试时关闭了HDiffPatch和sfpatcher在diff时的多线程，而开启多线程时一般可以成倍的提高diff速度。   
 patch时标注tmpf表示使用了临时文件来储存中间数据；mem表示在内存中执行不使用临时文件；limit表示使用限制内存占用的模式执行；而标注MT表示开启了多线程(8个)并行。   
 **BsDiff** v4.3 还是保持着使用bzip2算法压缩补丁。   
 **xdelta** v3.1.0 使用`-e -n -f -s`来创建补丁, 而用`-d -f -s`参数来执行的patch。   
@@ -251,19 +250,19 @@ sfpatcher补充测试了用ApkNormalized(ApkDiffPatch方案)处理过的apk文�
 
 | 方案|平均压缩率|
 |:----|----:|
-|sfpatcher-0 lzma2|50.8%|
-|sfpatcher-1 lzma2|31.5%|
-|sfpatcher-2 lzma2|29.3%|
-|sfpatcher-3 lzma2|26.7%|
-|sfpatcher-2pre lzma2|81.9%|
-|sfpatcher-3pre lzma2|76.6%|
+|hdiffz lzma2|50.8%|
+|sfpatcher -1 lzma2|31.5%|
+|sfpatcher -2 lzma2|29.3%|
+|sfpatcher -3 lzma2|26.7%|
+|sfpatcher -2 pre lzma2|81.9%|
+|sfpatcher -3 pre lzma2|76.6%|
 ||
-|sfpatcher-0 zstd|50.9%|
-|sfpatcher-1 zstd|32.6%|
-|sfpatcher-2 zstd|30.7%|
-|sfpatcher-3 zstd|28.3%|
-|sfpatcher-2pre zstd|86.3%|
-|sfpatcher-3pre zstd|82.3%|
+|hdiffz zstd|50.9%|
+|sfpatcher -1 zstd|32.6%|
+|sfpatcher -2 zstd|30.7%|
+|sfpatcher -3 zstd|28.3%|
+|sfpatcher -2 pre zstd|86.3%|
+|sfpatcher -3 pre zstd|82.3%|
 
 # 节省CDN带宽费用估算(仅供参考)
 单个apk一次升级节省的流量估算：用户的安卓手机现在经常使用的应用apk一般都越来越大(游戏平均更大)，假设按平均100MB算。   
