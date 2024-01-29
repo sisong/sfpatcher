@@ -2,8 +2,8 @@
    
 [**sfpatcher** 命令行工具下载](https://github.com/sisong/sfpatcher/releases)（支持Windows、Linux、MacOS）
 
-# 创建补丁的工具sf_diff
-使用命令行工具sf_diff命令，来创建新旧版本apk文件之间的补丁，直接运行sf_diff命令会得到如下所示的帮助信息输出：
+# 创建补丁的工具 sf_diff
+使用命令行工具 sf_diff 命令，来创建新旧版本apk文件之间的补丁，直接运行sf_diff命令会得到如下所示的帮助信息输出：
 ```
 diff   usage: sf_diff [options] oldArchiveFile newArchiveFile outDiffFile
 compress usage: [-c - ...] -pre "" newArchiveFile outDiffFile
@@ -26,6 +26,11 @@ options:
                 zlib (if uncompatible, as -o-1);
                 need decompress temp buffer (see -lo),
                 run very slowly when re-compress newArchiveFile (see -ln);
+  -e-ldefA
+      open Enable ldefA encoder&decoder for normalized newArchiveFile, the
+        apk file created by $sf_normalize -cl-A; out outDiffFile file size
+        will smaller, and recompress speed is much faster when patching!
+      NOTE: sf_diff & sf_patch both needed support ldefA & version>=v1.3.0!
   -HD   create compressed diffFile compatible with hdiffz
   -SD   create single compressed diffFile compatible with hdiffz -SD
   -BSD  create diffFile compatible with bsdiff
@@ -105,6 +110,10 @@ options:
    * **-o-2**	当输入的压缩数据兼容zlib库并且压缩级别<=6时，可以得到较小的补丁，不兼容的压缩数据就会退回到-o-1模式；patch时还原压缩较慢(需要还原的数据量的上限可以用-ln控制)，并且patch时需要使用临时解压空间(见-lo和-lp)。
    * **-o-3**	当输入的压缩数据兼容zlib库时，一般可以得到最小的补丁文件；不兼容的压缩数据就会退回到-o-1模式；patch时还原压缩很慢(见-ln)，并且patch时需要使用临时解压空间(见-lo和-lp)。
 
+ * **-e-ldefA 选项**：
+   允许使用 ldefA 编解码器来处理标准化过的 new.apk 文件，该文件被 `$sf_normalize -cl-A` 处理过；这样可以得到更小的补丁包，并且patch合成时还原压缩速度还比较快！   
+    注意：sf_diff 和 sf_patch 需要 v1.3.0 及以上版本才能支持该新的 ldefA 编解码器。(即使new.apk没有标准化过，diff时打开该新编解码器后，patch端也可能需要升级才能支持该新补丁)
+
 * **-HD 选项**： 创建和**hdiffz**兼容的补丁包文件。
 * **-SD 选项**： 创建和**hdiffz** -SD兼容的补丁包文件。
 * **-BSD 选项**：创建和**bsdiff**兼容的补丁包文件。 (注意：bsdiff模式只支持bzip2压缩插件。)   
@@ -148,14 +157,15 @@ options:
 * **-t 选项**：只执行patch校验检查，在旧版本数据上应用已经存在的补丁数据，看得到的数据是否和新版本数据完全相同。
 
 * **-v 选项**： 输出当前程序的版本等信息。
+   
 
-# PC上打补丁的工具sf_patch
-patch端一般在安卓手机上运行，提供了NDK编译出的.so库文件和其对应java代码（即SDK，使用需要获得商业授权）。   
+# PC上打补丁的工具 sf_patch
+sf_patch 端一般在安卓手机上运行，提供了NDK编译出的.so库文件和其对应java代码（即SDK，使用需要获得商业授权）。   
 *安卓库 libsfpatch.so (v1.2.0) 文件大小参考：   
  arm64-v8a 静态库 275KB (zip压缩后 134KB), 动态库 207KB (zip压缩后 110KB);   
  armeabi-v7a 静态库 198KB (zip压缩后 123KB), 动态库 170KB (zip压缩后 110KB).*   
    
-直接在PC上运行sf_patch命令会得到如下所示的帮助信息输出： 
+直接在PC上运行 sf_patch 命令会得到如下所示的帮助信息输出： 
 ```
 usage: sf_patch oldArchiveFile diffFile outNewArchiveFile [maxUncompressMemory tempUncompressFileName] [-lp] [-v] [-p-parallelThreadNumber]
   if oldArchiveFile is empty input parameter ""
@@ -211,28 +221,97 @@ options:
 对于bsdiff的补丁，和**bspatch**不同，本程序使用一个较小的固定内存大小O(1)的模式执行patch过程。
 
 * **-v 选项**： 输出当前程序的版本等信息。 
+   
+
+# PC上的标准化工具 sf_normalize
+为了在保持一定的patch合成速度的前提下，得到更小的补丁包，定义了一个定制的apk文件标准化流程：   
+对要发布的apk文件，先使用 sf_normalize 命令进行处理，输出的新apk文件需要重新签名(如果apk只含v1版签名时不用重签)。   
+注意：如果是第三方的apk文件，自己无法进行重新签名，那该流程需要第三方apk拥有方的配合才能使用。   
+直接运行 sf_normalize 命令会得到如下所示的帮助信息输出：
+```
+usage: sf_normalize srcApk normalizedApk [options]
+options:
+  input srcApk file can *.zip *.jar *.apk file type;
+    sf_normalize normalized zip file:
+      recompress all compressed files's data by libdeflate or zlib,
+      align file data offset in zip file (compatible with AndroidSDK#zipalign),
+      remove all data descriptor, reserve & normalized Extra field and Comment,
+      compatible with jar sign(apk v1 sign), etc...
+    if apk file only used apk v1 sign, don't re-sign normalizedApk file!
+    if apk file used apk v2 sign, must re-sign normalizedApk file after normalized;
+      release signedApk:=AndroidSDK#apksigner(normalizedApk)
+  -cl-{4|A} , DEFAULT -cl-A
+    if set -cl-4 , then used zlib compressor; compatible with all versions of
+      sf_diff -o-3 & sf_patch; but patch speed is not as fast as -cl-A.
+    if set -cl-A , then used libdeflate compressor; this is recommended,
+      recompress speed is much faster when patching!
+      NOTE: sf_diff & sf_patch both needed support ldefA & version>=v1.3.0!
+  -as-alignSize
+    set align size for uncompressed file in zip for optimize app run speed,
+    1 <= alignSize <= 4k, recommended 4,8, DEFAULT -as-8.
+    NOTE: if -ap-1, must 4096%alignSize==0;
+  -ap-isPageAlignSoFile
+    if found uncompressed .so file in the zip, need align it to 4k page?
+      -ap-0         not page-align uncompressed .so files;
+      -ap-1         DEFAULT, page-align uncompressed .so files.
+  -q  quiet mode, don't print fileName
+  -v  output Version info.
+```
+
+* **标准化**：可以使用命令行工具 sf_normalize 在PC上对apk文件进行标准化处理，命令如下：  
+`$ sf_normalize "srcApk" "normalizedApk"`   
+ 生成成功，返回0，其他任何值都是发现了错误。   
+ sf_normalize 支持 *.zip *.jar *.apk 文件格式，使用 libdeflate 或 zlib 重新压缩其中的文件数据, 并对齐文件数据偏移位置(和 AndroidSDK#zipalign 兼容), 移除所有数据描述符,保留并标准化扩展字段和注释, 兼容 jar签名(即apk v1版签名), 等...   
+ 如果 srcApk 只含v1版签名时，那输出的 normalizedApk 文件不用重新签名! 否则标准后的normalizedApk必须重新签名：   
+ 可以使用安卓NDK中的apksigner程序来重新签名, signedApk:=AndroidSDK#apksigner(normalizedApk)
+
+* **-cl-{4|A} 选项**：默认为 -cl-A
+ 如果设置 -cl-4 , 则使用 zlib 压缩器; 兼容所有旧版本的 sf_diff -o-3 和 sf_patch; 但是patch合成速度没有 -cl-A 那么快。   
+ 如果设置 -cl-A , 则使用 libdeflate 压缩器; 这是推荐的用法, patch合成时重压缩速度快得多！   
+  注意: sf_diff 和 sf_patch 需要 v1.3.0 及以上版本才能支持该新的 ldefA 编解码器。
+
+* **-as-alignSize 选项**：
+ 设置未压缩文件的对齐大小，优化apk执行时的速度，1 <= alignSize <= 4k, 推荐 4,8, 默认 -as-8。   
+  注意: 如果设置了 -ap-1, 那alignSize必须满足4k整除要求，即 4096%alignSize==0
+
+* **-ap-isPageAlignSoFile 选项**：
+ 如果在apk文件中发现了未压缩的 .so 文件, 是否需要 4k 页对齐?   
+  -ap-0   未压缩的 .so 文件不需要按页对齐;   
+  -ap-1   默认, 未压缩的 .so 文件需要按页对齐。
+
+* **-q 选项**： 安静模式, 不要输出apk包中的文件名称。（只显示重要信息，并且程序执行速度更快）
+
+* **-v 选项**： 输出当前程序的版本等信息。 
+   
 
 # 推荐做法：
 * 获得较小的优化补丁，并有优化的patch速度：   
-`$ sf_diff "old.apk" "new.apk" "diff.pat" -o-1 -c-zstd-21-23 -step-3m -lp-512k -cache`   
-（patch时内存占用估算：8m+3m+0.5m，最大约20MB左右。 diff时的-p并行线程数量根据机器情况设置。）   
+`$ sf_diff "old.apk" "new.apk" "diff.pat" -o-1 -c-zstd-21-24 -step-3m -lp-512k -cache`   
+（patch时内存占用估算：16m+3m+0.5m，最大约30MB左右。 diff时的-p并行线程数量根据机器情况设置。）   
 patch端建议参数：`$ sf_patch "old.apk" "diff.pat" "out_new.apk" -lp -p-6`   
 
 * 如果想要更小的补丁，并且保持最差patch速度勉强可接受：   
 `$ sf_diff "old.apk" "new.apk" "diff.pat" -o-2 -c-zstd-21-22 -step-2m -lp-8m -cache`   
 （patch时内存占用估算：4m+2m+8m，最大约30MB左右。 压缩算法也可以考虑lzma2。）   
-patch端建议参数：`$ sf_patch "old.apk" "diff.pat" "out_new.apk" -lp -p-12`   
+patch端建议参数：`$ sf_patch "old.apk" "diff.pat" "out_new.apk" -lp -p-8`   
 
 * 如果想要最小的补丁，并且不太在意最差patch速度（比如后台空闲自动更新的场景）：   
 `$ sf_diff "old.apk" "new.apk" "diff.pat" -o-3 -c-lzma2-9-4m -step-2m -lp-8m -cache`   
 （patch时内存占用估算：4m+2m+8m，最大约30MB左右。）   
-patch端建议参数：`$ sf_patch "old.apk" "diff.pat" "out_new.apk" -lp -p-14`   
+patch端建议参数：`$ sf_patch "old.apk" "diff.pat" "out_new.apk" -lp -p-10`   
 
 * 对新版本的初次下载大小优化，并且保持最差patch速度勉强可接受：   
 `$ sf_diff "" "new.apk" "recompressed.pat" -pre -o-2 -c-lzma2-9-16m`   
 （patch时内存占用估算：0m+0m+16m，最大约30MB左右。）   
 patch端建议参数：`$ sf_patch "" "recompressed.pat" "out_new.apk" -p-10`   
 
-* SDK高级用法：patch线程数可以根据回调时得到的任务量和当前设备的CPU核心数和空闲情况动态调整。 当客户端patch回调时得知完整临时**解压空间**需要的内存远小于当前设备的空闲内存时，不限制patch内存占用；这样patch速度会更快一点。   
-   
-   
+* SDK高级用法：patch线程数可以根据回调时得到的任务量和当前设备的CPU核心数和空闲情况动态调整。 当客户端patch回调时得知完整临时**解压空间**需要的内存远小于当前设备的空闲内存时，不限制patch内存占用；这样patch速度会更快一点。 如果知道客户端内存资源比较大，可以增大-lp和-c压缩字典的大小，得到更小一些的补丁包。   
+
+* 标准化流程推荐做法：
+  * 请确保sf_patch客户端已经升级到v1.3.0, 支持 ldefA 编解码器
+  * 标准化apk文件：`$ sf_normalize new.apk normalized_new.apk -cl-A -q`
+  * apk拥有者重新签名： `snnew.apk = AndroidSDK#apksigner(normalized_new.apk);`
+  * 创建补丁包：`$ sf_diff "old.apk" "snnew.apk" "diff.pat" -o-1 -e-ldefA -c-zstd-21-22 -step-2m -lp-8m -cache`
+  * patch端打补丁：`$ sf_patch "old.apk" "diff.pat" "out_new.apk" -lp -p-10`
+  * 如果是首次下载，可以创建完整压缩包：`$ sf_diff "" "snnew.apk" "recompressed.pat" -pre -o-1 -e-ldefA -c-zstd-21-24`
+  * 完整包在patch端解压：`$ sf_patch "" "recompressed.pat" "out_new.apk" -p-10`

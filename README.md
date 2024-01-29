@@ -1,5 +1,5 @@
 ﻿# sfpatcher：针对应用商店的apk增量算法
-**v1.0.15 已正式上线**，为亿级手机终端用户提供更新服务，当前最新版本 v1.2.0   
+**v1.0.15 已正式上线**，为亿级手机终端用户提供更新服务，当前最新版本 v1.3.0   
 [**sfpatcher** 命令行工具下载](https://github.com/sisong/sfpatcher/releases)（支持Windows、Linux、MacOS），
 [命令行使用说明](https://github.com/sisong/sfpatcher/blob/master/cmdline_doc.md)   
 需要商业授权(含源代码&培训)，请联系作者： <housisong@hotmail.com>   
@@ -48,6 +48,7 @@
 - patch端支持对客户端的oldApk文件进行虚拟化；比如可以用一些简单的描述数据来移除oldApk(v1--v4签名)中添加的各种类型渠道号的影响，提高了补丁适应能力。
 - diff端参数可选择性丰富，对各种使用场景可以定制性的设置合适的控制参数。
 - patch结果提供丰富的错误号，以利于追踪patch失败的原因，提高升级成功率。
+- 支持专用的标准化流程sf_normalize，在保持还不错的patch合成速度的情况下，进一步降低30%补丁包大小。（注意：该特性需要第三方apk厂商配合,对apk执行标准化处理,并重新签名）
 
 注1：所有测试数据来源于收集的一些常用apk应用，共32个用例；并在ARM CPU Kirin980上测试了部分patch。（见性能测试对比数据）
 
@@ -62,7 +63,7 @@
 ### **sfpatcher 和 ApkDiffPatch**：
 - sfpatcher 可用于广泛的场景，而ApkDiffPatch用于能够对apk文件进行重新签名的场景。
 - sfpatcher 的patch端比 ApkDiffPatch 更快一些，多线程时内存占用也比较可控；而 ApkDiffPatch 在并行patch的时候内存占用较大。
-- sfpatcher 生成的补丁平均比 ApkDiffPatch 稍大一些；当然对于同样ApkNormalized化过的apk，两个方案生成的补丁大小相近，即 sfpatcher 可以平滑的替代 ApkDiffPatch方案。
+- sfpatcher 生成的补丁平均比 ApkDiffPatch 稍大一些；当然对于同样ApkNormalized化过的apk，两个方案生成的补丁大小相近，即 sfpatcher 可以平滑的替代 ApkDiffPatch方案。并且，新版本sfpatcher提供了专用的sf_normalize标准化程序，补丁包大小一致，但patch合成速度可以进一步加倍！
 - sfpatcher 插件框架可支持多种档案格式，并且档案格式和patch端无关，兼容性和扩展性更好；而 ApkDiffPatch 的patch端和zip、apk格式、签名方式耦合过重，随着apk格式、签名方案和apk工具的变动，容易有兼容性问题(可能造成无法准确还原newApk或者无法优化补丁包大小)。
 
 # 参与测试的diff&patch方案
@@ -120,13 +121,13 @@
 在一台笔记本PC上对比测试：Windows11, CPU R9-7945HX, SSD PCIe4.0x4 4T, DDR5 5200MHz 32Gx2   
 patch时标注tmpf表示使用了临时文件来储存中间数据；mem表示在内存中执行不使用临时文件；limit表示使用限制内存占用的模式执行；而标注MT表示开启了多线程(8个)并行。   
 **BsDiff** v4.3 还是保持着使用bzip2算法压缩补丁。   
-**xdelta** v3.1.0 使用`-e -n -f -s`来创建补丁, 而用`-d -f -s`参数来执行的patch。   
-**xdelta3 -B** 是指diff时添加`-B oldSize`增大引用窗口到oldApk文件相同大小进行的测试，其结果仅供参考，因为patch时内存占用也会随之同样增大。   
+**xdelta** v3.1.0 使用`-e -n -f -s`来创建补丁, 而用`-d -f -s`参数来执行的patch。    
 **HDiffPatch** v4.6.3 支持2种diff模式，`-s-16`和`-m-1 -cache -block`模式分别测试，输出补丁时分别测试了用lzma2、zstd压缩的测试。HDiffPatch支持输出兼容bsdiff的补丁(bzip2压缩)，补充了`-BSD -m-1 -cache -block`参数后的测试结果。   
 **archive-patcher** v1.0 一般使用gzip或brotli算法压缩补丁，这里为了diff速度并更好的和其他方案对比补丁大小，diff时输出不压缩的补丁，然后再额外使用lzma2压缩补丁。 需要注意：这时收集到的diff数据不包含额外压缩时的时间和内存消耗，收集到的patch数据也**不包含**解压的时间和内存消耗等。   
 **ApkDiffPatch** v1.6.0 使用了lzma2来压缩输出的补丁。   
-**sfpatcher** v1.1.1 支持4个级别的diff，-0,-1,-2和-3分别测试； sfpatcher支持不需要旧版本apk而直接重新压缩新版本apk的模式(-pre)；sfpatcher支持多种可选压缩输出，这里测试了-c-zstd-21和-c-lzma2-9这2种。   
+**sfpatcher** v1.1.1 支持多个级别的diff，-1,-2和-3分别测试； sfpatcher支持不需要旧版本apk而直接重新压缩新版本apk的模式(标记为pre)；sfpatcher支持多种可选压缩输出，这里测试了-c-zstd-21和-c-lzma2-9这2种。   
 sfpatcher补充测试了用ApkNormalized(ApkDiffPatch方案)处理过的apk文件，分别进行增量测试和lzma2重压缩测试(标记为Norm)。   
+sfpatcher v1.3.0 新增了专用的标准化处理流程$sf_normalize -cl-A和-cl-4, 对测试apk进行标准化并重新签名后，分别进行增量测试和zstd重压缩测试(标记为clA和cl4，重压缩标记为pre)。   
    
 另外在一部安卓手机(CPU:Kirin980 2×A76 2.6G + 2×A76 1.92G + 4×A55 1.8G)上对hpatchz&hsynz&sfpatcher进行了一些patch时间测试，补充到了最后一列。   
 
@@ -137,7 +138,6 @@ sfpatcher补充测试了用ApkNormalized(ApkDiffPatch方案)处理过的apk文�
 |:----|----:|----:|----:|----|----:|----:|----:|----:|
 |zstd --patch-from|53.18%|2199M|3.6MB/s|mem|209M|596M|609MB/s|
 |**xdelta3**|**54.51%**|422MB|3.8MB/s|mem|**98MB**|**99MB**|**170MB/s**|
-|xdelta3 -B|53.53%|848M|4.3MB/s|mem|183M|548M|171MB/s|
 |**bsdiff**|**53.84%**|931MB|1.2MB/s|mem|**218MB**|**605MB**|**54MB/s**|
 |hdiffz|54.40%|509M|8.8MB/s|mem|5M|6M|682MB/s|443MB/s|
 |hdiffz lzma2|52.93%|525M|4.1MB/s|mem|21M|22M|260MB/s|131MB/s|
@@ -154,10 +154,6 @@ sfpatcher补充测试了用ApkNormalized(ApkDiffPatch方案)处理过的apk文�
 |sfpatcher-3pre Norm|64.91%|610M|1.7MB/s|mem|37M|41M|14MB/s|
 |**sfpatcher-3pre Norm**|**64.91%**|610MB|1.7MB/s|memMT|**42MB**|**46MB**|**64MB/s**|
 ||
-|sfpatcher-0 zstd|53.04%|537M|5.4MB/s|mem|19M|20M|564MB/s|371MB/s|
-|sfpatcher-0 zstd|53.05%|1251M|11.0MB/s|memMT|20M|22M|739MB/s|489MB/s|
-|sfpatcher-0 lzma2|52.92%|525M|4.1MB/s|mem|18M|20M|253MB/s|131MB/s|
-|sfpatcher-0 lzma2|52.94%|557M|18.8MB/s|memMT|19M|22M|346MB/s|157MB/s|
 |sfpatcher-1 zstd|31.08%|818M|2.3MB/s|limit|15M|19M|201MB/s|92MB/s|
 |**sfpatcher-1 zstd**|**31.07%**|1025MB|4.6MB/s|limitMT|**18MB**|**25MB**|**424MB/s**|189MB/s|
 |sfpatcher-1 lzma2|29.75%|819M|2.3MB/s|limit|14M|19M|104MB/s|50MB/s|
@@ -176,6 +172,15 @@ sfpatcher补充测试了用ApkNormalized(ApkDiffPatch方案)处理过的apk文�
 |**sfpatcher-2pre lzma2**|**75.42%**|1091MB|8.3MB/s|memMT|**24MB**|**28MB**|**63MB/s**|26MB/s|
 |sfpatcher-3pre lzma2|73.34%|386M|1.7MB/s|mem|20M|23M|21MB/s|11MB/s|
 |sfpatcher-3pre lzma2|73.53%|1126M|8.1MB/s|memMT|25M|29M|60MB/s|24MB/s|
+||
+|sfpatcher-2 cl4 zstd|21.72%|1141M|2.3MB/s|memMT|19M|24M|38MB/s|
+|**sfpatcher-2 cl4 zstd**|**21.74%**|1158MB|5.2MB/s|mem|**25MB**|**30MB**|**123MB/s**|
+|sfpatcher-3pre cl4 zstd|74.30%|451M|1.9MB/s|memMT|21M|26M|29MB/s|
+|**sfpatcher-3pre cl4 zstd**|**74.29%**|1990MB|5.5MB/s|mem|**28MB**|**33MB**|**155MB/s**|
+|sfpatcher-1 clA zstd|21.72%|1141M|2.5MB/s|memMT|19M|22M|85MB/s|63MB/s|
+|**sfpatcher-1 clA zstd**|**21.74%**|1156MB|5.4MB/s|mem|**26MB**|**29MB**|**240MB/s**|129MB/s|
+|sfpatcher-3pre clA zstd|74.30%|450M|2.1MB/s|memMT|20M|22M|61MB/s|46MB/s|
+|**sfpatcher-3pre clA zstd**|**74.71%**|1991MB|5.8MB/s|mem|**28MB**|**32MB**|**264MB/s**|129MB/s|
    
 
 # 游戏测试用例
@@ -227,8 +232,6 @@ sfpatcher补充测试了用ApkNormalized(ApkDiffPatch方案)处理过的apk文�
 |zstd|36.35%|5297MB|3.2MB/s|mem|2088MB|4033MB|852MB/s|576MB/s|
 |**xdelta3 lzma**|**54.14%**|423MB|3.5MB/s|mem|**99MB**|**104MB**|**94MB/s**|**30MB/s**|
 |xdelta3 lzma +hpatchz -m|54.14%|423MB|3.5MB/s|mem|79MB|83MB|258MB/s|84MB/s|
-|xdelta3 lzma -B|35.89%|6424MB|6.6MB/s|mem|1299MB|2090MB|233MB/s|76MB/s|
-|xdelta3 lzma -B +hpatchz -m|35.89%|6424MB|6.6MB/s|mem|1043MB|2028MB|291MB/s|180MB/s|
 |**bsdiff**|**36.15%**|9284MB|1.1MB/s|mem|**2085MB**|**4042MB**|**89MB/s**|**32MB/s**|
 |bsdiff +hpatchz -m|36.15%|9284MB|1.1MB/s|mem|1045MB|2029MB|95MB/s|33MB/s|
 |bsdiff +hpatchz -s|36.15%|9284MB|1.1MB/s|mem|14MB|14MB|87MB/s|32MB/s|
