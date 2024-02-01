@@ -137,31 +137,31 @@ sfpatcher v1.3.0 新增了专用的标准化处理流程$sf_normalize -cl-A和-c
 |diff方案|平均压缩率|平均内存|平均速度|patch|平均内存|最大内存|平均速度|arm Kirin980|
 |:----|----:|----:|----:|----|----:|----:|----:|----:|
 |zstd --patch-from|53.18%|2199M|3.6MB/s|mem|209M|596M|609MB/s|
-|**xdelta3**|**54.51%**|422MB|3.8MB/s|mem|**98MB**|**99MB**|**170MB/s**|
-|**bsdiff**|**53.84%**|931MB|1.2MB/s|mem|**218MB**|**605MB**|**54MB/s**|
+|**xdelta3**|**54.51%**|422M|3.8MB/s|mem|**98M**|**99M**|**170MB/s**|
+|**bsdiff**|**53.84%**|931M|1.2MB/s|mem|**218M**|**605M**|**54MB/s**|
 |hdiffz|54.40%|509M|8.8MB/s|mem|5M|6M|682MB/s|443MB/s|
 |hdiffz lzma2|52.93%|525M|4.1MB/s|mem|21M|22M|260MB/s|131MB/s|
-|**hdiffz zstd**|**53.04%**|537MB|5.4MB/s|mem|**21MB**|**22MB**|**598MB/s**|371MB/s|
+|**hdiffz zstd**|**53.04%**|537M|5.4MB/s|mem|**21M**|**22M**|**598MB/s**|371MB/s|
 |hdiffz -s zstd|53.44%|221M|10.1MB/s|mem|20M|22M|620MB/s|
-|**archive-patcher**|**31.65%**|1448MB|0.9MB/s|temf|**558MB**|**587MB**|**14MB/s**|
+|**archive-patcher**|**31.65%**|1448M|0.9MB/s|temf|**558M**|**587M**|**14MB/s**|
 |ApkDiffPatch|18.44%|1003M|2.2MB/s|mem|164M|453M|20MB/s|
 |ApkDiffPatch|18.44%|1003M|2.2MB/s|memMT|257M|628M|64MB/s|
 |ApkDiffPatch|18.44%|1003M|2.2MB/s|tmpf|21M|25M|17MB/s|
 |ApkDiffPatch|18.44%|1003M|2.2MB/s|tmpfMT|101M|211M|46MB/s|
 |sfpatcher-3 Norm|18.35%|1147M|2.2MB/s|limit|43M|59M|21MB/s|
-|**sfpatcher-3 Norm**|**18.35%**|1147MB|2.2MB/s|limitMT|**49MB**|**65MB**|**77MB/s**|
+|**sfpatcher-3**|**18.35%**|1147M|2.2MB/s|limitMT|**49M**|**65M**|**77MB/s**|
 |sfpatcher-3 Norm|18.35%|1147M|2.2MB/s|memMT|170M|452M|99MB/s|
 |sfpatcher-3pre Norm|64.91%|610M|1.7MB/s|mem|37M|41M|14MB/s|
-|**sfpatcher-3pre Norm**|**64.91%**|610MB|1.7MB/s|memMT|**42MB**|**46MB**|**64MB/s**|
+|**sfpatcher-3pre**|**64.91%**|610M|1.7MB/s|memMT|**42M**|**46M**|**64MB/s**|
 ||
 |sfpatcher-1 zstd|31.08%|818M|2.3MB/s|limit|15M|19M|201MB/s|92MB/s|
-|**sfpatcher-1 zstd**|**31.07%**|1025MB|4.6MB/s|limitMT|**18MB**|**25MB**|**424MB/s**|189MB/s|
+|**sfpatcher-1 zstd**|**31.07%**|1025M|4.6MB/s|limitMT|**18M**|**25M**|**424MB/s**|189MB/s|
 |sfpatcher-1 lzma2|29.75%|819M|2.3MB/s|limit|14M|19M|104MB/s|50MB/s|
 |sfpatcher-1 lzma2|29.75%|809M|5.3MB/s|limitMT|17M|24M|167MB/s|74MB/s|
 |sfpatcher-2 zstd|26.27%|975M|2.1MB/s|limit|15M|20M|43MB/s|
 |sfpatcher-2 zstd|26.29%|1002M|4.7MB/s|limitMT|20M|27M|155MB/s|
 |sfpatcher-2 lzma2|24.11%|976M|2.1MB/s|limit|15M|20M|37MB/s|19MB/s|
-|**sfpatcher-2 lzma2**|**24.15%**|968MB|5.0MB/s|limitMT|**20MB**|**26MB**|**108MB/s**|45MB/s|
+|**sfpatcher-2 lzma2**|**24.15%**|968M|5.0MB/s|limitMT|**20M**|**26M**|**108MB/s**|45MB/s|
 |sfpatcher-3 lzma2|23.53%|997M|2.0MB/s|limit|16M|20M|31MB/s|17MB/s|
 |sfpatcher-3 lzma2|23.56%|987M|4.5MB/s|limitMT|21M|26M|98MB/s|40MB/s|
 |sfpatcher-2pre zstd|81.36%|376M|2.8MB/s|mem|19M|23M|37MB/s|
@@ -169,18 +169,18 @@ sfpatcher v1.3.0 新增了专用的标准化处理流程$sf_normalize -cl-A和-c
 |sfpatcher-3pre zstd|79.20%|387M|2.4MB/s|mem|20M|23M|29MB/s|
 |sfpatcher-3pre zstd|79.20%|1698M|6.5MB/s|memMT|25M|30M|144MB/s|
 |sfpatcher-2pre lzma2|75.23%|378M|1.9MB/s|mem|20M|23M|24MB/s|12MB/s|
-|**sfpatcher-2pre lzma2**|**75.42%**|1091MB|8.3MB/s|memMT|**24MB**|**28MB**|**63MB/s**|26MB/s|
+|**sfpatcher-2pre lzma2**|**75.42%**|1091M|8.3MB/s|memMT|**24M**|**28M**|**63MB/s**|26MB/s|
 |sfpatcher-3pre lzma2|73.34%|386M|1.7MB/s|mem|20M|23M|21MB/s|11MB/s|
 |sfpatcher-3pre lzma2|73.53%|1126M|8.1MB/s|memMT|25M|29M|60MB/s|24MB/s|
 ||
 |sfpatcher-2 cl4 zstd|21.72%|1141M|2.3MB/s|memMT|19M|24M|38MB/s|
-|**sfpatcher-2 cl4 zstd**|**21.74%**|1158MB|5.2MB/s|mem|**25MB**|**30MB**|**123MB/s**|
+|**sfpatcher-2 cl4 zstd**|**21.74%**|1158M|5.2MB/s|mem|**25M**|**30M**|**123MB/s**|
 |sfpatcher-3pre cl4 zstd|74.30%|451M|1.9MB/s|memMT|21M|26M|29MB/s|
-|**sfpatcher-3pre cl4 zstd**|**74.29%**|1990MB|5.5MB/s|mem|**28MB**|**33MB**|**155MB/s**|
+|**sfpatcher-3pre cl4 zstd**|**74.29%**|1990M|5.5MB/s|mem|**28M**|**33M**|**155MB/s**|
 |sfpatcher-1 clA zstd|21.72%|1141M|2.5MB/s|memMT|19M|22M|85MB/s|63MB/s|
-|**sfpatcher-1 clA zstd**|**21.74%**|1156MB|5.4MB/s|mem|**26MB**|**29MB**|**240MB/s**|129MB/s|
+|**sfpatcher-1 clA zstd**|**21.74%**|1156M|5.4MB/s|mem|**26M**|**29M**|**240MB/s**|129MB/s|
 |sfpatcher-3pre clA zstd|74.30%|450M|2.1MB/s|memMT|20M|22M|61MB/s|46MB/s|
-|**sfpatcher-3pre clA zstd**|**74.71%**|1991MB|5.8MB/s|mem|**28MB**|**32MB**|**264MB/s**|129MB/s|
+|**sfpatcher-3pre clA zstd**|**74.30%**|1991M|5.8MB/s|mem|**28M**|**32M**|**264MB/s**|129MB/s|
    
 
 # 游戏测试用例

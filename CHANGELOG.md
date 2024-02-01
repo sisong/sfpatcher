@@ -1,6 +1,6 @@
 # sfpatcher Change Log
 
-## [v1.3.0](https://github.com/sisong/sfpatcher/releases/tag/v1.3.0) - 2024-01-25
+## [v1.3.0](https://github.com/sisong/sfpatcher/releases/tag/v1.3.0) - 2024-01-29
 ### 添加
 * 为 sfpatcher 方案添加了定制的apk文件标准化流程，在保持还不错的patch合成速度(比-o-1慢32%)的情况下进一步减小补丁包的大小(比-o-1小30%);   
 * 添加 sf_normalize 命令行用于标准化apk文件（注意：标准后的apk文件需要重新签名）;
@@ -18,8 +18,8 @@
 
 ## [v1.1.3](https://github.com/sisong/sfpatcher/releases/tag/v1.1.3) - 2023-08-28
 ### 添加
-* sf_patch 安卓 SDK 中的 hpatcher.patch() 添加支持 $bsdiff 4、$xdelta 3 -S、$xdelta 3 -S lzma、$open-vcdiff 创建的补丁文件;  
-  注意：NDK 编译安卓库 .so 时需要打开定义 _IS_NEED_BSDIFF 、_IS_NEED_VCDIFF;
+* sf_patch 安卓 SDK 中的 hpatcher.patch() 添加支持 $bsdiff4、$xdelta3 -S、$xdelta3 -S lzma、$open-vcdiff 创建的补丁文件;  
+  注意：默认关闭，需要在 NDK 编译安卓库 .so 时打开定义 _IS_NEED_BSDIFF 、_IS_NEED_VCDIFF;
 ### 修复
 * 重新打开了 LZMA arm64 汇编优化（从 v1.1.2 升级 LZMA 第三方库后）。
 

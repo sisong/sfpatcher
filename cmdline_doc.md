@@ -315,3 +315,4 @@ patch端建议参数：`$ sf_patch "" "recompressed.pat" "out_new.apk" -p-10`
   * patch端打补丁：`$ sf_patch "old.apk" "diff.pat" "out_new.apk" -lp -p-10`
   * 如果是首次下载，可以创建完整压缩包：`$ sf_diff "" "snnew.apk" "recompressed.pat" -pre -o-1 -e-ldefA -c-zstd-21-24`
   * 完整包在patch端解压：`$ sf_patch "" "recompressed.pat" "out_new.apk" -p-10`
+  * 如果需要兼容所有旧版本sf_patch, 那推荐使用  `sf_normalize -cl-4` 命令进行标准化处理，并且 sf_diff 启用 -o-2 并且不使用-e-ldefA，可以输出几乎一样大小的优化包，只是patch的时候会慢些(慢45%)。
