@@ -1,5 +1,5 @@
 ﻿# sfpatcher：针对应用商店的apk增量算法
-**v1.0.15 已正式上线**，为亿级手机终端用户提供更新服务，当前最新版本 v1.3.0   
+**v1.0.15 已正式上线**，为多家大厂和数亿手机终端用户提供更新服务，当前最新版本 v1.4.0   
 [**sfpatcher** 命令行工具下载](https://github.com/sisong/sfpatcher/releases)（支持Windows、Linux、MacOS），
 [命令行使用说明](https://github.com/sisong/sfpatcher/blob/master/cmdline_doc.md)   
 需要商业授权(含源代码&培训)，请联系作者： <housisong@hotmail.com>   
@@ -13,10 +13,14 @@
 ## 背景
 随着智能手机的普及和应用数量的爆发式增长，手机上大量app的下载和更新将产生巨大的数据流量。手机上的应用商店一般都会部署增量更新系统来节省大量的服务带宽成本和提升用户体验（节省用户流量和减少下载时间），而不用每次都下载完整版本。   
 
-应用商店使用的增量更新算法一般选择使用的是基于字节的 diff 和 patch 算法，包括：[BsDiff ](http://www.daemonology.net/bsdiff)、[xdelta3](https://github.com/jmacd/xdelta)、[HDiffPatch](https://github.com/sisong/HDiffPatch)等。   
+应用商店使用的增量更新算法一般选择使用的是基于字节的 diff 和 patch 算法，包括：[BsDiff ](http://www.daemonology.net/bsdiff)、[xdelta3](https://github.com/jmacd/xdelta)、[HDiffPatch](https://github.com/sisong/HDiffPatch) 等。   
  - **BsDiff** 是当前选择使用较多的算法，创建的补丁小，代码量小，容易移植。但diff和patch场景下执行速度都很慢、内存占用巨大，应用于应用商店等场景时需要进行一些修改定制。
  - **xdelta3** 在diff和patch场景下执行速度都很快，输出标准化的补丁格式(vcdiff格式,也有改成gdiff的)，apk补丁大小和BsDiff接近或略大，内存占用中等。该算法在diff处理较大文件的时候（比如几百MB以上），常会输出不正常的巨大补丁，除非使用和文件大小相当的参考内存来diff和patch，而这时patch时内存占用可控的优点就没有了。
- - **HDiffPatch** 是作者开源的算法，创建的补丁一般比BsDiff略小一些，diff(-s模式)和patch场景下执行速度都很快，内存占用可控并很小。 diff时也支持-m模式，用更大的内存和时间代价(这时也比BsDiff快很多倍)来得到更小一些的补丁包。 HDiffPatch 现在已经被**vivo**、**OPPO**、**小米**、**腾讯**、**华为**、**字节跳动**、**米哈游**等所使用；从为4KB RAM内存、8位CPU的MCU设备创建OTA增量补丁(4KB内存里一边解压一边patch!)，到为上百GB的游戏创建更新补丁，HDiffPatch 算法得到了越来越广泛的应用。
+ - **HDiffPatch** 是作者开源的算法，创建的补丁一般比BsDiff略小一些，diff(-s模式)和patch场景下执行速度都很快，内存占用可控并很小。
+ diff时也支持-m模式，用更大的内存和时间代价(这时也比BsDiff快很多倍)来得到更小一些的补丁包。
+ HDiffPatch 也可以部分兼容 BsDiff4、xdelta3 和 [open-vcdiff](https://github.com/google/open-vcdiff) 的补丁。
+ HDiffPatch 现在已经被**vivo**、**小米**、**荣耀**、**OPPO**、**华为**、**腾讯**、**字节跳动**、**传音**、**米哈游**等所使用。 
+  从为4KB RAM内存、8位CPU的MCU设备创建OTA增量补丁(4KB内存里一边解压一边patch!)，到为上百GB的游戏创建更新补丁，HDiffPatch 算法得到了越来越广泛的应用。
 ## 针对apk的diff&patch算法
 前面提到的增量更新实现方案都只是把apk单纯的看作文件数据直接用算法进行diff&patch，而没有考虑apk包本身是一个zip压缩包的事实。这种简单使用方式可以概括为公式：
 ```c
@@ -39,15 +43,15 @@
 内部使用了 HDiffPatch 算法作为基础，用C\C++语言开发，当前支持为deflate格式压缩的数据创建优化的补丁(用zlib压缩的支持最好)，支持在多种档案格式文件之间创建优化的补丁。     
 ### sfpatcher 之道
 - 针对应用商店的场景专门设计，优化补丁大小，支持大型游戏，patch时精确快速还原任意apk文件，能够用于用户交互场景。
-- 多级可选的补丁包大小，极致的patch速度：提供比谷歌**archive-patcher**方案(+lzma2压缩)下载补丁小2%的情况下，patch速度是其30倍！补丁比其小24%的情况下，速度是其8倍(这时补丁比BsDiff方案小约55%并且速度快得多)！ （注1）
-- patch时的内存等资源占用可控；diff时支持多种方案限制patch时的最大内存占用到合适的约定水平。即支持patch时O(1)平均内存占用的优化补丁包(并且patch过程中不使用临时文件)！
+- 多级可选的补丁包大小，极致的patch速度：提供比谷歌**archive-patcher**方案的补丁(+lzma2压缩后)小2%的情况下，patch速度是其30倍！补丁比其小24%的情况下，速度是其8倍(这时补丁比BsDiff方案小约55%并且速度快得多)！ （注1）
+- patch时的内存等资源占用可控；diff时支持多种方案限制patch时的最大内存占用到合适的约定水平。即支持patch时O(1)平均内存占用的优化补丁包，并且patch过程中不使用临时文件！
 - 优化的用户体验：因为补丁变小，下载时间也会变短，从而可能缩短整体更新时间，也更省电省流量。还可以支持下载数据的同时就开始patch，不用将补丁文件保存到内存或硬盘上，结合快速的patch，很多时候下载完成时，就可以得到了完整的新版本apk文件。 
 - 利用精确还原算法，对于初次下载的apk文件也能进行解压后的重压缩；从而节省用户初次下载apk时的流量。最多情况下平均比直接下载apk文件减少25%的数据，部分文件能减少35%以上的数据！
 - 支持从中断的位置继续patch的特性，节省程序被终止后再次执行程序时的打补丁时间。
-- 高扩展性，框架支持多种压缩档案格式(apk、zip、zip64、jar、gz、tar等)和其嵌套(如apk中多个子apk); 档案格式本身和档案中数据的压缩算法都只是以插件的形式获得支持。patch端的执行，设计上不依赖于具体的档案格式。
+- 高扩展性，框架支持多种压缩档案格式(apk、zip、zip64、jar、hap、gz、tar等)和其嵌套(如apk中多个子apk); 档案格式本身和档案中数据的压缩算法都只是以插件的形式获得支持。patch端的执行，设计上不依赖于具体的档案格式。
 - patch端支持对客户端的oldApk文件进行虚拟化；比如可以用一些简单的描述数据来移除oldApk(v1--v4签名)中添加的各种类型渠道号的影响，提高了补丁适应能力。
 - diff端参数可选择性丰富，对各种使用场景可以定制性的设置合适的控制参数。
-- patch结果提供丰富的错误号，以利于追踪patch失败的原因，提高升级成功率。
+- patch结果提供丰富的错误号，并进行高性能和高强度的数据完整性校验，以利于追踪patch失败的原因，提高升级成功率。
 - 支持专用的标准化流程sf_normalize，在保持还不错的patch合成速度的情况下，进一步降低30%补丁包大小。（注意：该特性需要第三方apk厂商配合,对apk执行标准化处理,并重新签名）
 
 注1：所有测试数据来源于收集的一些常用apk应用，共32个用例；并在ARM CPU Kirin980上测试了部分patch。（见性能测试对比数据）
@@ -55,7 +59,7 @@
 ## 方案主要特性对比
 ### **sfpatcher 和 archive-patcher**：
 - sfpatcher 的patch端比 archive-patcher 快很多倍(相近补丁大小的情况下速度是其30倍)，资源占用小(O(1))，能够满足各种使用场景的要求；而 archive-patcher 还原慢，资源占用大，一般用于后台更新场景。
-- sfpatcher 生成的补丁大小在很多情况下也可以比 archive-patcher 的补丁（压缩后）更小。
+- sfpatcher 生成的补丁大小在很多情况下也可以比 archive-patcher 的补丁(压缩后)更小。
 - sfpatcher 创建压缩后的补丁，执行patch前不需要额外步骤解压缩补丁，边patch边随时解压缩补丁数据；而 archive-patcher 创建的补丁需要额外压缩和patch前解压。
 - sfpatcher 在patch时不需要对oldApk提前进行解压，边patch边随时解压用到的oldApk中的数据，可以始终保持O(1)内存占用；而 archive-patcher 需要提前将oldApk中用到的数据全部解压缩到一个临时文件里。
 - sfpatcher 支持大型apk文件，包括游戏等的更新升级，patch速度快；而 archive-patcher 有解压+未压缩总数据最大512M的限制，而且patch也很慢，某些情况下甚至patch需要几分钟。
@@ -129,7 +133,7 @@ patch时标注tmpf表示使用了临时文件来储存中间数据；mem表示�
 sfpatcher补充测试了用ApkNormalized(ApkDiffPatch方案)处理过的apk文件，分别进行增量测试和lzma2重压缩测试(标记为Norm)。   
 sfpatcher v1.3.0 新增了专用的标准化处理流程$sf_normalize -cl-A和-cl-4, 对测试apk进行标准化并重新签名后，分别进行增量测试和zstd重压缩测试(标记为clA和cl4，重压缩标记为pre)。   
    
-另外在一部安卓手机(CPU:Kirin980 2×A76 2.6G + 2×A76 1.92G + 4×A55 1.8G)上对hpatchz&hsynz&sfpatcher进行了一些patch时间测试，补充到了最后一列。   
+另外在一部安卓手机(CPU:Kirin980 2×A76 2.6G + 2×A76 1.92G + 4×A55 1.8G)上对hpatchz&sfpatcher进行了一些patch时间测试，补充到了最后一列。   
 
 # 测试结果   
 其中：平均压缩率=(补丁大小/新apk大小)的平均值； 单次测试的内存占用统计值为峰值私有内存；

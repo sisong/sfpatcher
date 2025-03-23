@@ -31,9 +31,6 @@ options:
         apk file created by $sf_normalize -cl-A; out outDiffFile file size
         will smaller, and recompress speed is much faster when patching!
       NOTE: sf_diff & sf_patch both needed support ldefA & version>=v1.3.0!
-  -HD   create compressed diffFile compatible with hdiffz
-  -SD   create single compressed diffFile compatible with hdiffz -SD
-  -BSD  create diffFile compatible with bsdiff
   -m-matchScore
       matchScore>=0, DEFAULT -m-2, recommended: 0--6 etc...
   -c-compressType[-compressLevel]
@@ -42,7 +39,6 @@ options:
       support compress type & level:
         -c-zlib[-{1..9}]                    DEFAULT level 9
             support run by multi-thread parallel, fast!
-        -c-bzip2[-{1..9}]                   (or -bz2) DEFAULT level 9
         -c-lzma[-{0..9}[-dictSize]]         DEFAULT level 7
             dictSize can like 4096 or 4k or 4m or 128m etc..., DEFAULT 16m
             support run by 2-thread parallel.
@@ -87,8 +83,11 @@ options:
   -p-parallelThreadNumber
       DEFAULT -p-4!  if parallelThreadNumber>1 then
       open multi-thread Parallel mode when compress outDiffFile;
+  -neq
+      open check: if newArchiveFile & oldArchiveFile's datas are equal, then return error;
+      DEFAULT not check equal.
   -d  Diff only, do't run patch check, DEFAULT run patch check.
-  -t  Test only, run patch check;
+  -t  Test only, run several times patch check; (or -T , do more tests)
       check sf_patch(oldArchiveFile,testDiffFile)==newArchiveFile?
   -v  output Version info.
 ```
@@ -114,14 +113,8 @@ options:
    允许使用 ldefA 编解码器来处理标准化过的 new.apk 文件，该文件被 `$sf_normalize -cl-A` 处理过；这样可以得到更小的补丁包，并且patch合成时还原压缩速度还比较快！   
     注意：sf_diff 和 sf_patch 需要 v1.3.0 及以上版本才能支持该新的 ldefA 编解码器。(即使new.apk没有标准化过，diff时打开该新编解码器后，patch端也可能需要升级才能支持该新补丁)
 
-* **-HD 选项**： 创建和**hdiffz**兼容的补丁包文件。
-* **-SD 选项**： 创建和**hdiffz** -SD兼容的补丁包文件。
-* **-BSD 选项**：创建和**bsdiff**兼容的补丁包文件。 (注意：bsdiff模式只支持bzip2压缩插件。)   
-推荐，可以尝试利用-cache和-block来加快兼容补丁包的创建速度。
-
 * **-c 选项**：设置补丁数据使用的压缩算法；diff默认输出的补丁文件是不压缩的，可以在创建补丁时用该选项指定一个支持的压缩插件：
    * **-c-zlib**[-{1..9}]		使用zlib算法压缩，默认压缩级别9。
-   * **-c-bzip2**[-{1..9}] (或-bz2)	使用bzip2算法压缩，默认压缩级别9。
    * **-c-lzma**[-{0..9}[-dictSize]]	使用lzma算法压缩，默认压缩级别7，支持设置解压时字典大小，默认16MB（该值越大一般压缩的越小）；该插件支持2路并行压缩（推荐使用lzma2）。
    * **-c-lzma2**[-{0..9}[-dictSize]]	使用lzma2算法压缩，默认压缩级别7，支持设置解压时字典大小，默认16MB；该插件支持多线程并行压缩。
    * **-c-zstd**[-{0..22}[-dictBits]]	使用zstd算法压缩，默认压缩级别20，支持设置解压时字典比特数{10..31}，默认24（即对应字典大小2^24=16MB）。   
@@ -150,11 +143,15 @@ options:
 
 * **-ln 选项**：设置新版本数据的最大解压大小limitNewDecodeSize，默认不限制；这部分数据在patch的时候需要重新压缩还原；设置过小，可能会使输出的补丁包变大，设置过大可能对patch速度有影响。如果-o级别>1时，级别1的解压数据不受limitNewDecodeSize的限制.
 
-* **-p 选项**：设置输出补丁包文件数据时允许的并行压缩线程数。
+* **-p 选项**：设置输出补丁包文件数据时允许的并行压缩线程数。需要注意：多线程并行diff时创建的补丁包每次都可能数据不相同。
+
+* **-neq 选项**：拒绝为相同数据创建补丁；该选项默认处于关闭状态，即不执行检查;   
+  设置该参数后在sf_diff执行时会检查newArchiveFile和oldArchiveFile的文件数据是否完全相同，如果相同则直接返回失败。
 
 * **-d 选项**：设置输出是否只执行diff，不执行patch校验检查。
 
-* **-t 选项**：只执行patch校验检查，在旧版本数据上应用已经存在的补丁数据，看得到的数据是否和新版本数据完全相同。
+* **-t 选项**：只执行基本的patch校验检查，不会执行diff，不会修改任何文件；
+   在旧版本数据上应用已经存在的补丁数据，看得到的数据是否和新版本数据完全相同。而使用 **-T** 可以执行更多次的打补丁测试。
 
 * **-v 选项**： 输出当前程序的版本等信息。
    
@@ -187,8 +184,7 @@ options:
       DEFAULT -p-8!  if parallelThreadNumber>1 then
       open multi-thread Parallel patch mode!
   -t  test other patcher, diffFile created by
-      $hdiffz $hdiffz -SD $hdiffz -BSD $bsdiff4 $hdiffz -VCD $xdelta3 -S $xdelta3 -S lzma $open-vcdiff,
-      or created by $sf_diff -HD $sf_diff -SD $sf_diff -BSD
+      $hdiffz $hdiffz -SD $hdiffz -BSD $bsdiff4 $hdiffz -VCD $xdelta3 -S $xdelta3 -S lzma $open-vcdiff
   -v  output Version info.
 ```
 
@@ -235,10 +231,10 @@ options:
     sf_normalize normalized zip file:
       recompress all compressed files's data by libdeflate or zlib,
       align file data offset in zip file (compatible with AndroidSDK#zipalign),
-      remove all data descriptor, reserve & normalized Extra field and Comment,
+      remove all data descriptor, normalized Extra field & reserve Comment,
       compatible with jar sign(apk v1 sign), etc...
     if apk file only used apk v1 sign, don't re-sign normalizedApk file!
-    if apk file used apk v2 sign, must re-sign normalizedApk file after normalized;
+    if apk file used apk v2 sign or later, must re-sign normalizedApk file after normalized;
       release signedApk:=AndroidSDK#apksigner(normalizedApk)
   -cl-{4|A} , DEFAULT -cl-A
     if set -cl-4 , then used zlib compressor; compatible with all versions of
@@ -248,12 +244,14 @@ options:
       NOTE: sf_diff & sf_patch both needed support ldefA & version>=v1.3.0!
   -as-alignSize
     set align size for uncompressed file in zip for optimize app run speed,
-    1 <= alignSize <= 4k, recommended 4,8, DEFAULT -as-8.
-    NOTE: if -ap-1, must 4096%alignSize==0;
-  -ap-isPageAlignSoFile
-    if found uncompressed .so file in the zip, need align it to 4k page?
-      -ap-0         not page-align uncompressed .so files;
-      -ap-1         DEFAULT, page-align uncompressed .so files.
+    1 <= alignSize <= PageSize, recommended 4,8, DEFAULT -as-8.
+    NOTE: if not -ap-0, must PageSize%alignSize==0;
+  -ap-pageAlignSoFile
+    if found uncompressed .so file in the zip, need align it to page size?
+      -ap-0      not page-align uncompressed .so files;
+      -ap-4k     page-align uncompressed .so files to 4KB;
+      -ap-16k    (or -ap-1) DEFAULT, page-align uncompressed .so files to 16KB;
+      -ap-64k    page-align uncompressed .so files to 64KB.
   -q  quiet mode, don't print fileName
   -v  output Version info.
 ```
@@ -261,7 +259,7 @@ options:
 * **标准化**：可以使用命令行工具 sf_normalize 在PC上对apk文件进行标准化处理，命令如下：  
 `$ sf_normalize "srcApk" "normalizedApk"`   
  生成成功，返回0，其他任何值都是发现了错误。   
- sf_normalize 支持 *.zip *.jar *.apk 文件格式，使用 libdeflate 或 zlib 重新压缩其中的文件数据, 并对齐文件数据偏移位置(和 AndroidSDK#zipalign 兼容), 移除所有数据描述符,保留并标准化扩展字段和注释, 兼容 jar签名(即apk v1版签名), 等...   
+ sf_normalize 支持 *.zip *.jar *.apk 文件格式，使用 libdeflate 或 zlib 重新压缩其中的文件数据, 并对齐文件数据偏移位置(和 AndroidSDK#zipalign 兼容), 移除所有数据描述符,并标准化扩展字段，保留注释, 兼容 jar签名(即apk v1版签名), 等...   
  如果 srcApk 只含v1版签名时，那输出的 normalizedApk 文件不用重新签名! 否则标准后的normalizedApk必须重新签名：   
  可以使用安卓NDK中的apksigner程序来重新签名, signedApk:=AndroidSDK#apksigner(normalizedApk)
 
@@ -272,12 +270,14 @@ options:
 
 * **-as-alignSize 选项**：
  设置未压缩文件的对齐大小，优化apk执行时的速度，1 <= alignSize <= 4k, 推荐 4,8, 默认 -as-8。   
-  注意: 如果设置了 -ap-1, 那alignSize必须满足4k整除要求，即 4096%alignSize==0
+  注意: 如果没有设置 -ap-0, 那alignSize必须满足PageSize整除要求，即 PageSize%alignSize==0
 
-* **-ap-isPageAlignSoFile 选项**：
- 如果在apk文件中发现了未压缩的 .so 文件, 是否需要 4k 页对齐?   
-  -ap-0   未压缩的 .so 文件不需要按页对齐;   
-  -ap-1   默认, 未压缩的 .so 文件需要按页对齐。
+* **-ap-pageAlignSoFile 选项**：
+ 如果在apk文件中发现了未压缩的 .so 文件, 是否需要按内存页面大小对齐?   
+  -ap-0     未压缩的 .so 文件不需要按页对齐;   
+  -ap-4k    未压缩的 .so 文件需要按4KB页面对齐；
+  -ap-16k   (或 -ap-1) 默认, 未压缩的 .so 文件需要按16KB页面对齐；
+  -ap-64k   未压缩的 .so 文件需要按64KB页面对齐。
 
 * **-q 选项**： 安静模式, 不要输出apk包中的文件名称。（只显示重要信息，并且程序执行速度更快）
 
