@@ -1,5 +1,18 @@
 # sfpatcher Change Log
 
+## v1.5.0 - 2026-07-24
+### 添加
+* sf_diff 添加新的节省运行时内存的功能，优化当old和new数据很不相同时的场景；当开启-block或者开启-cache时自动开启该功能。
+* sf_patch 添加兼容新的HDiffPatch v5.0窗口补丁格式(用$hdiffz -WD创建)。
+### 改变
+* sf_patch 端移除所有C++代码，不再依赖C++运行库；特别是多线程并行代码已切换到C相关API重新实现；
+* 修复了少量sf_diff失败的情况，因文件访问而执行失败时错误信息更加清晰。
+
+## v1.4.1 - 2025-06-06
+### 改变
+* 升级NDK到版本23，重新编译安卓库 libsfpatch.so 兼容支持 Android 15+ 启用16KB内存页面大小运行；   
+  注意：之前的NDK版本16编译出的.so文件并不能在16KB内存页面的真机设备上运行。升级NDK编译后，新的.so的目标API提升到16(即安卓4.1，之前是安卓4.0),并且不再支持armv5和armv6。
+
 ## [v1.4.0](https://github.com/sisong/sfpatcher/releases/tag/v1.4.0) - 2025-03-21
 ### 添加
 * 编译安卓库 libsfpatch.so 兼容支持 Android 15+ 启用16KB内存页面大小运行；

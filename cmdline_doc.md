@@ -50,9 +50,9 @@ options:
             dictBits can 10--31, DEFAULT 24.
             support run by multi-thread parallel, fast!
   -block-fastMatchBlockSize
-      set block match befor slow byte-by-byte match, DEFAULT -block-4k;
+      set block match befor slow byte-by-byte match, DEFAULT -block-1k;
       if set -block-0, means don't use block match;
-      fastMatchBlockSize>=4, recommended 256,1k,64k,1m etc...
+      fastMatchBlockSize>=4, recommended 512,4k,64k, etc...
       if newData similar to oldData then diff speed++ & diff memory--,
       but small possibility outDiffFile's size+
   -cache
@@ -125,7 +125,7 @@ options:
 
 * **-m 选项**：设置匹配最小分数(>=0)，默认值2；少量影响补丁包输出大小；一般输入数据可压缩性越大，这个值就可以设得越大。
 
-* **-block 选项**：设置块匹配，在较慢的逐字节匹配之前使用基于块的快速匹配，默认-block-4k；如果设置为-block-0，意思是关闭基于块的提前匹配；块匹配大小fastMatchBlockSize推荐256,1k,64k,1m等; 如果新版本和旧版本相同数据比较多,那diff速度就会比较快,并且减少内存占用，但有很小的可能补丁包会变大。
+* **-block 选项**：设置块匹配，在较慢的逐字节匹配之前使用基于块的快速匹配，默认-block-1k；如果设置为-block-0，意思是关闭基于块的提前匹配；块匹配大小fastMatchBlockSize推荐512,4k,64k等; 如果新版本和旧版本相同数据比较多,那diff速度就会比较快,并且减少内存占用，但有很小的可能补丁包会变大。
 
 * **-cache 选项**：设置是否在匹配的时候使用一个大缓存，从而优化匹配的速度，默认不；一般old原始数据和new不相同数据越多速度就越快，该缓存需要占用oldSize相当的内存，并且建立缓存较慢需要花费额外时间。
 
@@ -158,9 +158,9 @@ options:
 
 # PC上打补丁的工具 sf_patch
 sf_patch 端一般在安卓手机上运行，提供了NDK编译出的.so库文件和其对应java代码（即SDK，使用需要获得商业授权）。   
-*安卓库 libsfpatch.so (v1.2.0) 文件大小参考：   
- arm64-v8a 静态库 275KB (zip压缩后 134KB), 动态库 207KB (zip压缩后 110KB);   
- armeabi-v7a 静态库 198KB (zip压缩后 123KB), 动态库 170KB (zip压缩后 110KB).*   
+*安卓库 libsfpatch.so (v1.5.0) 文件大小参考：   
+ arm64-v8a 静态库 218KB (zip压缩后 125KB);   
+ armeabi-v7a 静态库 170KB (zip压缩后 116KB).*   
    
 直接在PC上运行 sf_patch 命令会得到如下所示的帮助信息输出： 
 ```
@@ -181,10 +181,9 @@ options:
   -ct
       set is run patch with continue mode, DEFAULT false.
   -p-parallelThreadNumber
-      DEFAULT -p-8!  if parallelThreadNumber>1 then
-      open multi-thread Parallel patch mode!
+      DEFAULT -p-8!  if parallelThreadNumber>1 then open multi-thread Parallel patch mode!
   -t  test other patcher, diffFile created by
-      $hdiffz $hdiffz -SD $hdiffz -BSD $bsdiff4 $hdiffz -VCD $xdelta3 -S $xdelta3 -S lzma $open-vcdiff
+      $hdiffz $hdiffz -SD $hdiffz -WD $hdiffz -BSD $bsdiff4 $hdiffz -VCD $xdelta3 -S $xdelta3 -S lzma $open-vcdiff
   -v  output Version info.
 ```
 
@@ -298,21 +297,24 @@ patch端建议参数：`$ sf_patch "old.apk" "diff.pat" "out_new.apk" -lp -p-8`
 * 如果想要最小的补丁，并且不太在意最差patch速度（比如后台空闲自动更新的场景）：   
 `$ sf_diff "old.apk" "new.apk" "diff.pat" -o-3 -c-lzma2-9-4m -step-2m -lp-8m -cache`   
 （patch时内存占用估算：4m+2m+8m，最大约30MB左右。）   
-patch端建议参数：`$ sf_patch "old.apk" "diff.pat" "out_new.apk" -lp -p-10`   
+patch端建议参数：`$ sf_patch "old.apk" "diff.pat" "out_new.apk" -lp -p-8`   
 
 * 对新版本的初次下载大小优化，并且保持最差patch速度勉强可接受：   
 `$ sf_diff "" "new.apk" "recompressed.pat" -pre -o-2 -c-lzma2-9-16m`   
 （patch时内存占用估算：0m+0m+16m，最大约30MB左右。）   
-patch端建议参数：`$ sf_patch "" "recompressed.pat" "out_new.apk" -p-10`   
+patch端建议参数：`$ sf_patch "" "recompressed.pat" "out_new.apk" -p-8`   
 
 * SDK高级用法：patch线程数可以根据回调时得到的任务量和当前设备的CPU核心数和空闲情况动态调整。 当客户端patch回调时得知完整临时**解压空间**需要的内存远小于当前设备的空闲内存时，不限制patch内存占用；这样patch速度会更快一点。 如果知道客户端内存资源比较大，可以增大-lp和-c压缩字典的大小，得到更小一些的补丁包。   
 
 * 标准化流程推荐做法：
-  * 请确保sf_patch客户端已经升级到v1.3.0, 支持 ldefA 编解码器
+  * 最新功能请确保sf_patch客户端已经升级到v1.3.0, 才能支持 ldefA 编解码器；这样包小并且patch比较快。
   * 标准化apk文件：`$ sf_normalize new.apk normalized_new.apk -cl-A -q`
   * apk拥有者重新签名： `snnew.apk = AndroidSDK#apksigner(normalized_new.apk);`
-  * 创建补丁包：`$ sf_diff "old.apk" "snnew.apk" "diff.pat" -o-1 -e-ldefA -c-zstd-21-22 -step-2m -lp-8m -cache`
-  * patch端打补丁：`$ sf_patch "old.apk" "diff.pat" "out_new.apk" -lp -p-10`
-  * 如果是首次下载，可以创建完整压缩包：`$ sf_diff "" "snnew.apk" "recompressed.pat" -pre -o-1 -e-ldefA -c-zstd-21-24`
-  * 完整包在patch端解压：`$ sf_patch "" "recompressed.pat" "out_new.apk" -p-10`
-  * 如果需要兼容所有旧版本sf_patch, 那推荐使用  `sf_normalize -cl-4` 命令进行标准化处理，并且 sf_diff 启用 -o-2 并且不使用-e-ldefA，可以输出几乎一样大小的优化包，只是patch的时候会慢些(慢45%)。
+  * 创建补丁包：`$ sf_diff "old.apk" "snnew.apk" "diff.pat" -o-3 -e-ldefA -c-zstd-21-22 -step-2m -lp-8m -cache`
+  * patch端打补丁：`$ sf_patch "old.apk" "diff.pat" "out_new.apk" -lp -p-8`
+  * 如果是首次下载，可以创建完整压缩包：`$ sf_diff "" "snnew.apk" "recompressed.pat" -pre -o-3 -e-ldefA -c-zstd-21-24`
+  * 完整包在patch端解压：`$ sf_patch "" "recompressed.pat" "out_new.apk" -p-8`
+  * 如果需要兼容所有旧版本sf_patch, 那推荐使用  `sf_normalize -cl-4` 命令进行标准化处理(替换掉`-cl-A`)，并且 sf_diff 不使用`-e-ldefA`，可以输出几乎一样大小的优化包，只是patch的时候会慢些(比ldefA慢45%)。
+   即：`$ sf_normalize new.apk normalized_new.apk -cl-4 -q`  + `$ sf_diff "old.apk" "snnew.apk" "diff.pat" -o-3 -c-zstd-21-22 -step-2m -lp-8m -cache` 或 `$ sf_diff "" "snnew.apk" "recompressed.pat" -pre -o-3 -c-zstd-21-24`
+
+

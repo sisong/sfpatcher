@@ -1,5 +1,5 @@
 ﻿# sfpatcher：针对应用商店的apk增量算法
-**v1.0.15 已正式上线**，为多家大厂和数亿手机终端用户提供更新服务，当前最新版本 v1.4.0   
+**v1.0.15 已正式上线**，为多家大厂和数亿手机终端用户提供更新服务，当前最新版本 v1.5.0   
 [**sfpatcher** 命令行工具下载](https://github.com/sisong/sfpatcher/releases)（支持Windows、Linux、MacOS），
 [命令行使用说明](https://github.com/sisong/sfpatcher/blob/master/cmdline_doc.md)   
 需要商业授权(含源代码&培训)，请联系作者： <housisong@hotmail.com>   
